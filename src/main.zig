@@ -1,71 +1,39 @@
 const std = @import("std");
-const Io = std.Io;
+const types = @import("types.zig");
 
-const nes = @import("nes");
+pub fn main() !void {}
 
-pub fn main(init: std.process.Init) !void {
-    // Prints to stderr, unbuffered, ignoring potential errors.
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+pub fn update_zero_and_negative_flags(cpu: *types.CPU, value: u8) void {
+    cpu.status.zero = value == 0;
+    cpu.status.negative = value & 0b1000_0000 != 0;
+}
 
-    // This is appropriate for anything that lives as long as the process.
-    const arena: std.mem.Allocator = init.arena.allocator();
+pub fn interpret(cpu: *types.CPU, T: type, program: T) void {
+    while (true) {
+        const opscode = program[cpu.program_counter];
+        cpu.program_counter += 1;
 
-    // Accessing command line arguments:
-    const args = try init.minimal.args.toSlice(arena);
-    for (args) |arg| {
-        std.log.info("arg: {s}", .{arg});
+        switch (opscode) {
+            0xA9 => {
+                const param = program[cpu.program_counter];
+                cpu.program_counter += 1;
+                cpu.accumulator = param;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
+            0xAA => {
+                cpu.register_x = cpu.accumulator;
+                update_zero_and_negative_flags(cpu, cpu.register_x);
+            },
+            0xE8 => {
+                cpu.register_x +%= 1;
+                update_zero_and_negative_flags(cpu, cpu.register_x);
+            },
+            0x00 => {
+                return;
+            },
+            else => {
+                return;
+            },
+        }
     }
-
-    // In order to do I/O operations need an `Io` instance.
-    const io = init.io;
-
-    // Stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    var stdout_buffer: [1024]u8 = undefined;
-    var stdout_file_writer: Io.File.Writer = .init(.stdout(), io, &stdout_buffer);
-    const stdout_writer = &stdout_file_writer.interface;
-
-    try nes.printAnotherMessage(stdout_writer);
-
-    try stdout_writer.flush(); // Don't forget to flush!
-}
-
-test "simple test" {
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(i32) = .empty;
-    defer list.deinit(gpa); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(gpa, 42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "fuzz example" {
-    try std.testing.fuzz({}, testOne, .{});
-}
-
-fn testOne(context: void, smith: *std.testing.Smith) !void {
-    _ = context;
-    // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(u8) = .empty;
-    defer list.deinit(gpa);
-    while (!smith.eos()) switch (smith.value(enum { add_data, dup_data })) {
-        .add_data => {
-            const slice = try list.addManyAsSlice(gpa, smith.value(u4));
-            smith.bytes(slice);
-        },
-        .dup_data => {
-            if (list.items.len == 0) continue;
-            if (list.items.len > std.math.maxInt(u32)) return error.SkipZigTest;
-            const len = smith.valueRangeAtMost(u32, 1, @min(32, list.items.len));
-            const off = smith.valueRangeAtMost(u32, 0, @intCast(list.items.len - len));
-            try list.appendSlice(gpa, list.items[off..][0..len]);
-            try std.testing.expectEqualSlices(
-                u8,
-                list.items[off..][0..len],
-                list.items[list.items.len - len ..],
-            );
-        },
-    };
 }
