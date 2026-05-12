@@ -2,9 +2,15 @@ const std = @import("std");
 const interpret = @import("main.zig").interpret;
 const CPU = @import("types.zig").CPU;
 
+test "test_load_and_reset" {
+    var cpu = CPU{};
+    interpret(&cpu, &[_]u8{0x00});
+    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 1);
+}
+
 test "test_0xa9_lda_immediate_load_data" {
     var cpu = CPU{};
-    interpret(&cpu, [3]u8, [_]u8{ 0xa9, 0x05, 0x00 });
+    interpret(&cpu, &[_]u8{ 0xa9, 0x05, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 0x05);
     try std.testing.expect(!cpu.status.zero);
     try std.testing.expect(!cpu.status.negative);
@@ -12,32 +18,32 @@ test "test_0xa9_lda_immediate_load_data" {
 
 test "test_0xa9_lda_zero_flag" {
     var cpu = CPU{};
-    interpret(&cpu, [3]u8, [_]u8{ 0xa9, 0x00, 0x00 });
+    interpret(&cpu, &[_]u8{ 0xa9, 0x00 });
     try std.testing.expect(cpu.status.zero);
 }
 
 test "test_0xa9_lda_negative_flag" {
     var cpu = CPU{};
-    interpret(&cpu, [3]u8, [_]u8{ 0xa9, 0xFF, 0x00 });
+    interpret(&cpu, &[_]u8{ 0xa9, 0xff, 0x00 });
     try std.testing.expect(cpu.status.negative);
 }
 
 test "test_0xaa_tax_move_a_to_x" {
     var cpu = CPU{};
     cpu.accumulator = 10;
-    interpret(&cpu, [3]u8, [_]u8{ 0xaa, 0x00, 0x00 });
+    interpret(&cpu, &[_]u8{ 0xaa, 0x00 });
     try std.testing.expectEqual(cpu.register_x, 10);
 }
 
 test "test_5_ops_working_together" {
     var cpu = CPU{};
-    interpret(&cpu, [5]u8, [_]u8{ 0xa9, 0xc0, 0xaa, 0xe8, 0x00 });
+    interpret(&cpu, &[_]u8{ 0xa9, 0xc0, 0xaa, 0xe8, 0x00 });
     try std.testing.expectEqual(cpu.register_x, 0xc1);
 }
 
 test "test_inx_overflow" {
     var cpu = CPU{};
     cpu.register_x = 0xff;
-    interpret(&cpu, [3]u8, [_]u8{ 0xe8, 0xe8, 0x00 });
+    interpret(&cpu, &[_]u8{ 0xe8, 0xe8, 0x00 });
     try std.testing.expectEqual(cpu.register_x, 1);
 }

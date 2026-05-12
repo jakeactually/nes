@@ -1,4 +1,5 @@
 pub const CPU = struct {
+    memory: [0xFFFF]u8 = @splat(0),
     program_counter: u16 = 0,
     stack_pointer: u8 = 0,
     accumulator: u8 = 0,
@@ -19,8 +20,8 @@ pub const ProcessorStatus = struct {
 };
 
 pub const OpcodeInfo = struct {
-    Instruction: Instruction,
-    Mode: AddressingMode,
+    instruction: Instruction,
+    mode: AddressingMode,
 };
 
 /// All 56 official instructions on the MOS 6502 CPU.
