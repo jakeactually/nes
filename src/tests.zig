@@ -47,3 +47,25 @@ test "test_inx_overflow" {
     interpret(&cpu, &[_]u8{ 0xe8, 0xe8, 0x00 });
     try std.testing.expectEqual(cpu.register_x, 1);
 }
+
+test "test_lda_from_memory" {
+    var cpu = CPU{};
+    cpu.memory[0x10] = 0x55;
+    interpret(&cpu, &[_]u8{ 0xa5, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 0x55);
+}
+
+test "test_sta_zero_page" {
+    var cpu = CPU{};
+    cpu.accumulator = 0x02;
+    interpret(&cpu, &[_]u8{ 0x85, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0x02);
+}
+
+test "test_sta_zero_page_x" {
+    var cpu = CPU{};
+    cpu.accumulator = 0x02;
+    cpu.register_x = 0x04;
+    interpret(&cpu, &[_]u8{ 0x95, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x14], 0x02);
+}

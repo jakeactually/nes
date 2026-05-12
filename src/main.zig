@@ -62,20 +62,23 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
         const addr = get_operand_address(cpu, info.mode);
 
         switch (info.instruction) {
-            .lda => {
-                cpu.accumulator = cpu.memory[addr];
-                update_zero_and_negative_flags(cpu, cpu.accumulator);
-            },
-            .tax => {
-                cpu.register_x = cpu.accumulator;
-                update_zero_and_negative_flags(cpu, cpu.register_x);
+            .brk => {
+                return;
             },
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
             },
-            .brk => {
-                return;
+            .lda => {
+                cpu.accumulator = cpu.memory[addr];
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
+            .sta => {
+                cpu.memory[addr] = cpu.accumulator;
+            },
+            .tax => {
+                cpu.register_x = cpu.accumulator;
+                update_zero_and_negative_flags(cpu, cpu.register_x);
             },
             else => {
                 return;
