@@ -27,6 +27,7 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x1E => types.OpcodeInfo{ .instruction = .asl, .mode = .absolute_x },
 
         0x90 => types.OpcodeInfo{ .instruction = .bcc, .mode = .relative },
+        0xB0 => types.OpcodeInfo{ .instruction = .bcs, .mode = .relative },
 
         0x00 => types.OpcodeInfo{ .instruction = .brk, .mode = .implied },
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },

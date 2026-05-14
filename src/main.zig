@@ -54,6 +54,13 @@ fn instruction_offset(mode: types.AddressingMode) u16 {
     };
 }
 
+fn branch(cpu: *types.CPU, condition: bool, addr: u16) void {
+    if (condition) {
+        const jump: i8 = @bitCast(@as(u8, @truncate(addr)));
+        if (condition) cpu.program_counter +%= 1 +% @as(u16, @bitCast(@as(i16, jump)));
+    }
+}
+
 pub fn interpret(cpu: *types.CPU, program: []const u8) void {
     load(cpu, program);
     reset(cpu);
@@ -85,8 +92,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 update_zero_and_negative_flags(cpu, target.*);
             },
             .bcc => {
-                const jump: i8 = @bitCast(@as(u8, @truncate(addr)));
-                if (cpu.status.carry) cpu.program_counter +%= 1 +% @as(u16, @bitCast(@as(i16, jump)));
+                branch(cpu, !cpu.status.carry, addr);
+            },
+            .bcs => {
+                branch(cpu, cpu.status.carry, addr);
             },
             .brk => {
                 return;
