@@ -62,6 +62,15 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
         const addr = get_operand_address(cpu, info.mode);
 
         switch (info.instruction) {
+            .adc => {
+                const data = @as(u16, cpu.memory[addr]);
+                const sum = @as(u16, cpu.accumulator) + data + @intFromBool(cpu.status.carry);
+                const result: u8 = @truncate(sum);
+                cpu.status.carry = sum > 0xff;
+                cpu.status.overflow = (data ^ result) & (result ^ cpu.accumulator) & 0x80 != 0;
+                cpu.accumulator = result;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
             .brk => {
                 return;
             },
