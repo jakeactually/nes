@@ -37,6 +37,7 @@ fn get_operand_address(cpu: *types.CPU, mode: types.AddressingMode) u16 {
             const base = @as(u16, cpu.memory[current +% 1]) << 8 | cpu.memory[current];
             return base +% cpu.register_y;
         },
+        .relative => current,
         else => 0,
     };
 }
@@ -48,6 +49,7 @@ fn instruction_offset(mode: types.AddressingMode) u16 {
         .absolute_y => 2,
         .implied => 0,
         .accumulator => 0,
+        .relative => 0,
         else => 1,
     };
 }
@@ -81,6 +83,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.status.carry = target.* >> 7 == 1;
                 target.* <<= 1;
                 update_zero_and_negative_flags(cpu, target.*);
+            },
+            .bcc => {
+                const jump: i8 = @bitCast(@as(u8, @truncate(addr)));
+                if (cpu.status.carry) cpu.program_counter +%= 1 +% @as(u16, @bitCast(@as(i16, jump)));
             },
             .brk => {
                 return;

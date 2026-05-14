@@ -119,3 +119,17 @@ test "test_asl_zero_page" {
     try std.testing.expectEqual(cpu.memory[0x10], 0b1111_1110);
     try std.testing.expect(!cpu.status.carry);
 }
+
+test "test_bcc" {
+    var cpu = CPU{};
+    cpu.status.carry = true;
+    interpret(&cpu, &[_]u8{ 0x90, 10 });
+    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
+}
+
+test "test_bcc_negative" {
+    var cpu = CPU{};
+    cpu.status.carry = true;
+    interpret(&cpu, &[_]u8{ 0x90, @bitCast(@as(i8, -10)) });
+    try std.testing.expectEqual(cpu.program_counter, 0x8000 - 10 + 3);
+}
