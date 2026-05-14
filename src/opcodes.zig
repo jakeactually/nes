@@ -20,6 +20,12 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x21 => types.OpcodeInfo{ .instruction = .and_, .mode = .indirect_x },
         0x31 => types.OpcodeInfo{ .instruction = .and_, .mode = .indirect_y },
 
+        0x0A => types.OpcodeInfo{ .instruction = .asl, .mode = .accumulator },
+        0x06 => types.OpcodeInfo{ .instruction = .asl, .mode = .zero_page },
+        0x16 => types.OpcodeInfo{ .instruction = .asl, .mode = .zero_page_x },
+        0x0E => types.OpcodeInfo{ .instruction = .asl, .mode = .absolute },
+        0x1E => types.OpcodeInfo{ .instruction = .asl, .mode = .absolute_x },
+
         0x00 => types.OpcodeInfo{ .instruction = .brk, .mode = .implied },
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },

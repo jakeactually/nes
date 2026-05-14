@@ -103,3 +103,19 @@ test "test_and_immediate" {
     interpret(&cpu, &[_]u8{ 0x29, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 0x10);
 }
+
+test "test_asl_accumulator" {
+    var cpu = CPU{};
+    cpu.accumulator = 0xFF;
+    interpret(&cpu, &[_]u8{ 0x0A, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 0b1111_1110);
+    try std.testing.expect(cpu.status.carry);
+}
+
+test "test_asl_zero_page" {
+    var cpu = CPU{};
+    cpu.memory[0x10] = 0b0111_1111;
+    interpret(&cpu, &[_]u8{ 0x06, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0b1111_1110);
+    try std.testing.expect(!cpu.status.carry);
+}

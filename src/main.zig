@@ -47,6 +47,7 @@ fn instruction_offset(mode: types.AddressingMode) u16 {
         .absolute_x => 2,
         .absolute_y => 2,
         .implied => 0,
+        .accumulator => 0,
         else => 1,
     };
 }
@@ -74,6 +75,12 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .and_ => {
                 cpu.accumulator &= cpu.memory[addr];
                 update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
+            .asl => {
+                const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
+                cpu.status.carry = target.* >> 7 == 1;
+                target.* <<= 1;
+                update_zero_and_negative_flags(cpu, target.*);
             },
             .brk => {
                 return;
