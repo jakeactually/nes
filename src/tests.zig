@@ -140,3 +140,10 @@ test "test_bcs" {
     interpret(&cpu, &[_]u8{ 0xB0, 10 });
     try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
 }
+
+test "test_beq" {
+    var cpu = CPU{};
+    cpu.status.zero = true;
+    interpret(&cpu, &[_]u8{ 0xF0, 10 });
+    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
+}

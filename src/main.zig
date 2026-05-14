@@ -97,6 +97,9 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .bcs => {
                 branch(cpu, cpu.status.carry, addr);
             },
+            .beq => {
+                branch(cpu, cpu.status.zero, addr);
+            },
             .brk => {
                 return;
             },
