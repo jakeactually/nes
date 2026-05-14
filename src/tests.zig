@@ -96,3 +96,10 @@ test "test_adc_immediate_overflow" {
     try std.testing.expect(!cpu.status.carry);
     try std.testing.expect(cpu.status.overflow);
 }
+
+test "test_and_immediate" {
+    var cpu = CPU{};
+    cpu.accumulator = 0x10;
+    interpret(&cpu, &[_]u8{ 0x29, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 0x10);
+}

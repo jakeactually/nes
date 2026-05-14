@@ -11,6 +11,15 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x61 => types.OpcodeInfo{ .instruction = .adc, .mode = .indirect_x },
         0x71 => types.OpcodeInfo{ .instruction = .adc, .mode = .indirect_y },
 
+        0x29 => types.OpcodeInfo{ .instruction = .and_, .mode = .immediate },
+        0x25 => types.OpcodeInfo{ .instruction = .and_, .mode = .zero_page },
+        0x35 => types.OpcodeInfo{ .instruction = .and_, .mode = .zero_page_x },
+        0x2D => types.OpcodeInfo{ .instruction = .and_, .mode = .absolute },
+        0x3D => types.OpcodeInfo{ .instruction = .and_, .mode = .absolute_x },
+        0x39 => types.OpcodeInfo{ .instruction = .and_, .mode = .absolute_y },
+        0x21 => types.OpcodeInfo{ .instruction = .and_, .mode = .indirect_x },
+        0x31 => types.OpcodeInfo{ .instruction = .and_, .mode = .indirect_y },
+
         0x00 => types.OpcodeInfo{ .instruction = .brk, .mode = .implied },
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },

@@ -71,6 +71,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.accumulator = result;
                 update_zero_and_negative_flags(cpu, cpu.accumulator);
             },
+            .and_ => {
+                cpu.accumulator &= cpu.memory[addr];
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
             .brk => {
                 return;
             },
