@@ -147,3 +147,23 @@ test "test_beq" {
     interpret(&cpu, &[_]u8{ 0xF0, 10 });
     try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
 }
+
+test "test_bit_zero_page" {
+    var cpu = CPU{};
+    cpu.accumulator = 0b0000_1000;
+    cpu.memory[0x10] = 0b1000_0110;
+    interpret(&cpu, &[_]u8{ 0x24, 0x10, 0x00 });
+    try std.testing.expect(cpu.status.zero);
+    try std.testing.expect(!cpu.status.overflow);
+    try std.testing.expect(cpu.status.negative);
+}
+
+test "test_bit_absolute" {
+    var cpu = CPU{};
+    cpu.accumulator = 0b0000_1000;
+    cpu.memory[0x2110] = 0b1000_0110;
+    interpret(&cpu, &[_]u8{ 0x2C, 0x10, 0x21, 0x00 });
+    try std.testing.expect(cpu.status.zero);
+    try std.testing.expect(!cpu.status.overflow);
+    try std.testing.expect(cpu.status.negative);
+}

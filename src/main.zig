@@ -100,6 +100,12 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .beq => {
                 branch(cpu, cpu.status.zero, addr);
             },
+            .bit => {
+                const value = cpu.memory[addr];
+                cpu.status.zero = cpu.accumulator & value == 0;
+                cpu.status.overflow = value >> 6 & 1 == 1;
+                cpu.status.negative = value >> 7 == 1;
+            },
             .brk => {
                 return;
             },

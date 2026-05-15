@@ -30,6 +30,9 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xB0 => types.OpcodeInfo{ .instruction = .bcs, .mode = .relative },
         0xF0 => types.OpcodeInfo{ .instruction = .beq, .mode = .relative },
 
+        0x24 => types.OpcodeInfo{ .instruction = .bit, .mode = .zero_page },
+        0x2C => types.OpcodeInfo{ .instruction = .bit, .mode = .absolute },
+
         0x00 => types.OpcodeInfo{ .instruction = .brk, .mode = .implied },
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
