@@ -221,3 +221,10 @@ test "test_dec" {
     interpret(&cpu, &[_]u8{ 0xC6, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.memory[0x10], 0x54);
 }
+
+test "test_eor_immediate" {
+    var cpu = CPU{};
+    cpu.accumulator = 0x10;
+    interpret(&cpu, &[_]u8{ 0x49, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 0x00);
+}

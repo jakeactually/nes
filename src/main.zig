@@ -166,6 +166,11 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.register_y -%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_y);
             },
+            .eor => {
+                cpu.accumulator ^= cpu.memory[addr];
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
+
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
