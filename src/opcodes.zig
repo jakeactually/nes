@@ -58,6 +58,13 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
 
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
+        0xB5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page_x },
+        0xAD => types.OpcodeInfo{ .instruction = .lda, .mode = .absolute },
+        0xBD => types.OpcodeInfo{ .instruction = .lda, .mode = .absolute_x },
+        0xB9 => types.OpcodeInfo{ .instruction = .lda, .mode = .absolute_y },
+        0xA1 => types.OpcodeInfo{ .instruction = .lda, .mode = .indirect_x },
+        0xB1 => types.OpcodeInfo{ .instruction = .lda, .mode = .indirect_y },
+
         0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },

@@ -194,3 +194,23 @@ test "test_cmp_equal" {
     try std.testing.expect(cpu.status.zero);
     try std.testing.expect(cpu.status.negative);
 }
+
+test "test_lda_indirect_x" {
+    var cpu = CPU{};
+    cpu.register_x = 1;
+    cpu.memory[0x11] = 0x55;
+    cpu.memory[0x12] = 0x44;
+    cpu.memory[0x4455] = 123;
+    interpret(&cpu, &[_]u8{ 0xA1, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 123);
+}
+
+test "test_lda_indirect_y" {
+    var cpu = CPU{};
+    cpu.register_y = 1;
+    cpu.memory[0x10] = 0x55;
+    cpu.memory[0x11] = 0x44;
+    cpu.memory[0x4456] = 123;
+    interpret(&cpu, &[_]u8{ 0xB1, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 123);
+}
