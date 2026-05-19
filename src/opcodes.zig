@@ -42,6 +42,11 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x50 => types.OpcodeInfo{ .instruction = .bvc, .mode = .relative },
         0x70 => types.OpcodeInfo{ .instruction = .bvs, .mode = .relative },
 
+        0x18 => types.OpcodeInfo{ .instruction = .clc, .mode = .implied },
+        0xD8 => types.OpcodeInfo{ .instruction = .cld, .mode = .implied },
+        0x58 => types.OpcodeInfo{ .instruction = .cli, .mode = .implied },
+        0xB8 => types.OpcodeInfo{ .instruction = .clv, .mode = .implied },
+
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
         0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },

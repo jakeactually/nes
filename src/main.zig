@@ -124,6 +124,18 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .bvs => {
                 branch(cpu, cpu.status.overflow, addr);
             },
+            .clc => {
+                cpu.status.carry = false;
+            },
+            .cld => {
+                cpu.status.decimal = false;
+            },
+            .cli => {
+                cpu.status.interrupt = false;
+            },
+            .clv => {
+                cpu.status.overflow = false;
+            },
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
