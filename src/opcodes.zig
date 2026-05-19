@@ -33,7 +33,15 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x24 => types.OpcodeInfo{ .instruction = .bit, .mode = .zero_page },
         0x2C => types.OpcodeInfo{ .instruction = .bit, .mode = .absolute },
 
+        0x30 => types.OpcodeInfo{ .instruction = .bmi, .mode = .relative },
+        0xD0 => types.OpcodeInfo{ .instruction = .bne, .mode = .relative },
+        0x10 => types.OpcodeInfo{ .instruction = .bpl, .mode = .relative },
+
         0x00 => types.OpcodeInfo{ .instruction = .brk, .mode = .implied },
+
+        0x50 => types.OpcodeInfo{ .instruction = .bvc, .mode = .relative },
+        0x70 => types.OpcodeInfo{ .instruction = .bvs, .mode = .relative },
+
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
         0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },

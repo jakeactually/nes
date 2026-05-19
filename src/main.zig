@@ -106,8 +106,23 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.status.overflow = value >> 6 & 1 == 1;
                 cpu.status.negative = value >> 7 == 1;
             },
+            .bmi => {
+                branch(cpu, cpu.status.negative, addr);
+            },
+            .bne => {
+                branch(cpu, !cpu.status.zero, addr);
+            },
+            .bpl => {
+                branch(cpu, !cpu.status.negative, addr);
+            },
             .brk => {
                 return;
+            },
+            .bvc => {
+                branch(cpu, !cpu.status.overflow, addr);
+            },
+            .bvs => {
+                branch(cpu, cpu.status.overflow, addr);
             },
             .inx => {
                 cpu.register_x +%= 1;
