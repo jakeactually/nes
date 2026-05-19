@@ -90,7 +90,13 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xA1 => types.OpcodeInfo{ .instruction = .lda, .mode = .indirect_x },
         0xB1 => types.OpcodeInfo{ .instruction = .lda, .mode = .indirect_y },
 
+        0xE6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page },
+        0xF6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page_x },
+        0xEE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute },
+        0xFE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute_x },
         0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },
+        0xC8 => types.OpcodeInfo{ .instruction = .iny, .mode = .implied },
+
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },

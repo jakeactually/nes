@@ -170,11 +170,19 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.accumulator ^= cpu.memory[addr];
                 update_zero_and_negative_flags(cpu, cpu.accumulator);
             },
-
+            .inc => {
+                cpu.memory[addr] +%= 1;
+                update_zero_and_negative_flags(cpu, cpu.memory[addr]);
+            },
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
             },
+            .iny => {
+                cpu.register_y +%= 1;
+                update_zero_and_negative_flags(cpu, cpu.register_y);
+            },
+
             .lda => {
                 cpu.accumulator = cpu.memory[addr];
                 update_zero_and_negative_flags(cpu, cpu.accumulator);

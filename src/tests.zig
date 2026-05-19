@@ -228,3 +228,10 @@ test "test_eor_immediate" {
     interpret(&cpu, &[_]u8{ 0x49, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 0x00);
 }
+
+test "test_inc" {
+    var cpu = CPU{};
+    cpu.memory[0x10] = 0x55;
+    interpret(&cpu, &[_]u8{ 0xE6, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0x56);
+}
