@@ -97,6 +97,9 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },
         0xC8 => types.OpcodeInfo{ .instruction = .iny, .mode = .implied },
 
+        0x4C => types.OpcodeInfo{ .instruction = .jmp, .mode = .absolute },
+        0x6C => types.OpcodeInfo{ .instruction = .jmp, .mode = .indirect },
+
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },

@@ -29,6 +29,10 @@ fn get_operand_address(cpu: *types.CPU, mode: types.AddressingMode) u16 {
         .absolute => @as(u16, cpu.memory[cpu.program_counter + 1]) << 8 | current,
         .absolute_x => get_operand_address(cpu, .absolute) +% cpu.register_x,
         .absolute_y => get_operand_address(cpu, .absolute) +% cpu.register_y,
+        .indirect => {
+            const ptr = get_operand_address(cpu, .absolute);
+            return @as(u16, cpu.memory[ptr +% 1]) << 8 | cpu.memory[ptr];
+        },
         .indirect_x => {
             const ptr = get_operand_address(cpu, .zero_page_x);
             return @as(u16, cpu.memory[ptr +% 1]) << 8 | cpu.memory[ptr];
@@ -182,7 +186,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.register_y +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_y);
             },
-
+            .jmp => {
+                cpu.program_counter = addr;
+                continue;
+            },
             .lda => {
                 cpu.accumulator = cpu.memory[addr];
                 update_zero_and_negative_flags(cpu, cpu.accumulator);

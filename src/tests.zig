@@ -235,3 +235,17 @@ test "test_inc" {
     interpret(&cpu, &[_]u8{ 0xE6, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.memory[0x10], 0x56);
 }
+
+test "test_jmp" {
+    var cpu = CPU{};
+    interpret(&cpu, &[_]u8{ 0x4C, 0x34, 0x12 });
+    try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
+}
+
+test "test_jmp_indirect" {
+    var cpu = CPU{};
+    cpu.memory[0x1234] = 0x56;
+    cpu.memory[0x1235] = 0x78;
+    interpret(&cpu, &[_]u8{ 0x6C, 0x34, 0x12 });
+    try std.testing.expectEqual(cpu.program_counter, 0x7856 + 1);
+}
