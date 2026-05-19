@@ -142,6 +142,18 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.status.zero = cpu.accumulator == value;
                 cpu.status.negative = value >> 7 == 1;
             },
+            .cpx => {
+                const value = cpu.memory[addr];
+                cpu.status.carry = cpu.register_x >= value;
+                cpu.status.zero = cpu.register_x == value;
+                cpu.status.negative = value >> 7 == 1;
+            },
+            .cpy => {
+                const value = cpu.memory[addr];
+                cpu.status.carry = cpu.register_y >= value;
+                cpu.status.zero = cpu.register_y == value;
+                cpu.status.negative = value >> 7 == 1;
+            },
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
