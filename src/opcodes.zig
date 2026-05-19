@@ -47,6 +47,15 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x58 => types.OpcodeInfo{ .instruction = .cli, .mode = .implied },
         0xB8 => types.OpcodeInfo{ .instruction = .clv, .mode = .implied },
 
+        0xC9 => types.OpcodeInfo{ .instruction = .cmp, .mode = .immediate },
+        0xC5 => types.OpcodeInfo{ .instruction = .cmp, .mode = .zero_page },
+        0xD5 => types.OpcodeInfo{ .instruction = .cmp, .mode = .zero_page_x },
+        0xCD => types.OpcodeInfo{ .instruction = .cmp, .mode = .absolute },
+        0xDD => types.OpcodeInfo{ .instruction = .cmp, .mode = .absolute_x },
+        0xD9 => types.OpcodeInfo{ .instruction = .cmp, .mode = .absolute_y },
+        0xC1 => types.OpcodeInfo{ .instruction = .cmp, .mode = .indirect_x },
+        0xD1 => types.OpcodeInfo{ .instruction = .cmp, .mode = .indirect_y },
+
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
         0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },

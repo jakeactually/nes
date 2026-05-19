@@ -136,6 +136,12 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .clv => {
                 cpu.status.overflow = false;
             },
+            .cmp => {
+                const value = cpu.memory[addr];
+                cpu.status.carry = cpu.accumulator >= value;
+                cpu.status.zero = cpu.accumulator == value;
+                cpu.status.negative = value >> 7 == 1;
+            },
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
