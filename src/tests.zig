@@ -214,3 +214,10 @@ test "test_lda_indirect_y" {
     interpret(&cpu, &[_]u8{ 0xB1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
 }
+
+test "test_dec" {
+    var cpu = CPU{};
+    cpu.memory[0x10] = 0x55;
+    interpret(&cpu, &[_]u8{ 0xC6, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0x54);
+}

@@ -64,6 +64,14 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xC4 => types.OpcodeInfo{ .instruction = .cpy, .mode = .zero_page },
         0xCC => types.OpcodeInfo{ .instruction = .cpy, .mode = .absolute },
 
+        0xC6 => types.OpcodeInfo{ .instruction = .dec, .mode = .zero_page },
+        0xD6 => types.OpcodeInfo{ .instruction = .dec, .mode = .zero_page_x },
+        0xCE => types.OpcodeInfo{ .instruction = .dec, .mode = .absolute },
+        0xDE => types.OpcodeInfo{ .instruction = .dec, .mode = .absolute_x },
+
+        0xCA => types.OpcodeInfo{ .instruction = .dex, .mode = .implied },
+        0x88 => types.OpcodeInfo{ .instruction = .dey, .mode = .implied },
+
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
         0xB5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page_x },

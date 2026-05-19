@@ -154,6 +154,18 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.status.zero = cpu.register_y == value;
                 cpu.status.negative = value >> 7 == 1;
             },
+            .dec => {
+                cpu.memory[addr] -%= 1;
+                update_zero_and_negative_flags(cpu, cpu.memory[addr]);
+            },
+            .dex => {
+                cpu.register_x -%= 1;
+                update_zero_and_negative_flags(cpu, cpu.register_x);
+            },
+            .dey => {
+                cpu.register_y -%= 1;
+                update_zero_and_negative_flags(cpu, cpu.register_y);
+            },
             .inx => {
                 cpu.register_x +%= 1;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
