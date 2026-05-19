@@ -99,6 +99,7 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
 
         0x4C => types.OpcodeInfo{ .instruction = .jmp, .mode = .absolute },
         0x6C => types.OpcodeInfo{ .instruction = .jmp, .mode = .indirect },
+        0x20 => types.OpcodeInfo{ .instruction = .jsr, .mode = .absolute },
 
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },

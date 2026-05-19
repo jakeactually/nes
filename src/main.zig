@@ -190,6 +190,15 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.program_counter = addr;
                 continue;
             },
+            .jsr => {
+                const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+                const return_addr = cpu.program_counter + 1;
+                cpu.memory[stack_addr] = @truncate(return_addr >> 8);
+                cpu.memory[stack_addr -% 1] = @truncate(return_addr);
+                cpu.stack_pointer -%= 2;
+                cpu.program_counter = addr;
+                continue;
+            },
             .lda => {
                 cpu.accumulator = cpu.memory[addr];
                 update_zero_and_negative_flags(cpu, cpu.accumulator);

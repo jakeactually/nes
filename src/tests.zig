@@ -249,3 +249,12 @@ test "test_jmp_indirect" {
     interpret(&cpu, &[_]u8{ 0x6C, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x7856 + 1);
 }
+
+test "test_jsr" {
+    var cpu = CPU{};
+    interpret(&cpu, &[_]u8{ 0x20, 0x34, 0x12 });
+    try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
+    try std.testing.expectEqual(cpu.stack_pointer, 0x100 - 2);
+    try std.testing.expectEqual(cpu.memory[0x100], 0x80);
+    try std.testing.expectEqual(cpu.memory[0x100 - 1], 0x02);
+}
