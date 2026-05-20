@@ -81,6 +81,17 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x41 => types.OpcodeInfo{ .instruction = .eor, .mode = .indirect_x },
         0x51 => types.OpcodeInfo{ .instruction = .eor, .mode = .indirect_y },
 
+        0xE6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page },
+        0xF6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page_x },
+        0xEE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute },
+        0xFE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute_x },
+        0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },
+        0xC8 => types.OpcodeInfo{ .instruction = .iny, .mode = .implied },
+
+        0x4C => types.OpcodeInfo{ .instruction = .jmp, .mode = .absolute },
+        0x6C => types.OpcodeInfo{ .instruction = .jmp, .mode = .indirect },
+        0x20 => types.OpcodeInfo{ .instruction = .jsr, .mode = .absolute },
+
         0xA9 => types.OpcodeInfo{ .instruction = .lda, .mode = .immediate },
         0xA5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page },
         0xB5 => types.OpcodeInfo{ .instruction = .lda, .mode = .zero_page_x },
@@ -110,16 +121,14 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
 
         0xEA => types.OpcodeInfo{ .instruction = .nop, .mode = .implied },
 
-        0xE6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page },
-        0xF6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page_x },
-        0xEE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute },
-        0xFE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute_x },
-        0xE8 => types.OpcodeInfo{ .instruction = .inx, .mode = .implied },
-        0xC8 => types.OpcodeInfo{ .instruction = .iny, .mode = .implied },
-
-        0x4C => types.OpcodeInfo{ .instruction = .jmp, .mode = .absolute },
-        0x6C => types.OpcodeInfo{ .instruction = .jmp, .mode = .indirect },
-        0x20 => types.OpcodeInfo{ .instruction = .jsr, .mode = .absolute },
+        0x09 => types.OpcodeInfo{ .instruction = .ora, .mode = .immediate },
+        0x05 => types.OpcodeInfo{ .instruction = .ora, .mode = .zero_page },
+        0x15 => types.OpcodeInfo{ .instruction = .ora, .mode = .zero_page_x },
+        0x0D => types.OpcodeInfo{ .instruction = .ora, .mode = .absolute },
+        0x1D => types.OpcodeInfo{ .instruction = .ora, .mode = .absolute_x },
+        0x19 => types.OpcodeInfo{ .instruction = .ora, .mode = .absolute_y },
+        0x01 => types.OpcodeInfo{ .instruction = .ora, .mode = .indirect_x },
+        0x11 => types.OpcodeInfo{ .instruction = .ora, .mode = .indirect_y },
 
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },

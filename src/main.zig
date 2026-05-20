@@ -220,7 +220,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .nop => {
                 // Do nothing
             },
-
+            .ora => {
+                cpu.accumulator |= cpu.memory[addr];
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;
             },
