@@ -217,6 +217,9 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 target.* >>= 1;
                 update_zero_and_negative_flags(cpu, target.*);
             },
+            .nop => {
+                // Do nothing
+            },
 
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;

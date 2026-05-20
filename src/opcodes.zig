@@ -108,6 +108,8 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x4E => types.OpcodeInfo{ .instruction = .lsr, .mode = .absolute },
         0x5E => types.OpcodeInfo{ .instruction = .lsr, .mode = .absolute_x },
 
+        0xEA => types.OpcodeInfo{ .instruction = .nop, .mode = .implied },
+
         0xE6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page },
         0xF6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page_x },
         0xEE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute },
