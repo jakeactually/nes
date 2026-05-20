@@ -102,6 +102,12 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xAC => types.OpcodeInfo{ .instruction = .ldy, .mode = .absolute },
         0xBC => types.OpcodeInfo{ .instruction = .ldy, .mode = .absolute_x },
 
+        0x4A => types.OpcodeInfo{ .instruction = .lsr, .mode = .accumulator },
+        0x46 => types.OpcodeInfo{ .instruction = .lsr, .mode = .zero_page },
+        0x56 => types.OpcodeInfo{ .instruction = .lsr, .mode = .zero_page_x },
+        0x4E => types.OpcodeInfo{ .instruction = .lsr, .mode = .absolute },
+        0x5E => types.OpcodeInfo{ .instruction = .lsr, .mode = .absolute_x },
+
         0xE6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page },
         0xF6 => types.OpcodeInfo{ .instruction = .inc, .mode = .zero_page_x },
         0xEE => types.OpcodeInfo{ .instruction = .inc, .mode = .absolute },

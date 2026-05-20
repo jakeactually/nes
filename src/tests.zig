@@ -258,3 +258,21 @@ test "test_jsr" {
     try std.testing.expectEqual(cpu.memory[0x100], 0x80);
     try std.testing.expectEqual(cpu.memory[0x100 - 1], 0x02);
 }
+
+test "test_lsr_accumulator" {
+    var cpu = CPU{};
+    cpu.accumulator = 2;
+    interpret(&cpu, &[_]u8{ 0x4A, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 1);
+    try std.testing.expect(!cpu.status.carry);
+    try std.testing.expect(!cpu.status.negative);
+}
+
+test "test_lsr_zero_page" {
+    var cpu = CPU{};
+    cpu.memory[0x10] = 1;
+    interpret(&cpu, &[_]u8{ 0x46, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0);
+    try std.testing.expect(cpu.status.carry);
+    try std.testing.expect(cpu.status.zero);
+}
