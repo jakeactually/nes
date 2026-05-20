@@ -6,6 +6,7 @@ test "test_load_and_reset" {
     var cpu = CPU{};
     interpret(&cpu, &[_]u8{0x00});
     try std.testing.expectEqual(cpu.program_counter, 0x8000 + 1);
+    try std.testing.expectEqual(cpu.stack_pointer, 0xFD);
 }
 
 test "test_0xa9_lda_immediate_load_data" {
@@ -254,9 +255,9 @@ test "test_jsr" {
     var cpu = CPU{};
     interpret(&cpu, &[_]u8{ 0x20, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
-    try std.testing.expectEqual(cpu.stack_pointer, 0x100 - 2);
-    try std.testing.expectEqual(cpu.memory[0x100], 0x80);
-    try std.testing.expectEqual(cpu.memory[0x100 - 1], 0x02);
+    try std.testing.expectEqual(cpu.stack_pointer, 0xFD - 2);
+    try std.testing.expectEqual(cpu.memory[0x100 + 0xFD], 0x80);
+    try std.testing.expectEqual(cpu.memory[0x100 + 0xFD - 1], 0x02);
 }
 
 test "test_lsr_accumulator" {

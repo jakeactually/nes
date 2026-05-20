@@ -1,7 +1,7 @@
 pub const CPU = struct {
     memory: [0xFFFF]u8 = @splat(0),
     program_counter: u16 = 0,
-    stack_pointer: u8 = 0,
+    stack_pointer: u8 = 0xFD,
     accumulator: u8 = 0,
     register_x: u8 = 0,
     register_y: u8 = 0,
