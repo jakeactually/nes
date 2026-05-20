@@ -224,6 +224,27 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.accumulator |= cpu.memory[addr];
                 update_zero_and_negative_flags(cpu, cpu.accumulator);
             },
+            .pha => {
+                const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+                cpu.memory[stack_addr] = cpu.accumulator;
+                cpu.stack_pointer -%= 1;
+            },
+            .php => {
+                const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+                cpu.memory[stack_addr] = types.status_to_byte(cpu.status);
+                cpu.stack_pointer -%= 1;
+            },
+            .pla => {
+                const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+                cpu.accumulator = cpu.memory[stack_addr];
+                cpu.stack_pointer +%= 1;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
+            .plp => {
+                const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+                cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
+                cpu.stack_pointer +%= 1;
+            },
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;
             },

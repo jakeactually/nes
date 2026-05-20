@@ -130,6 +130,11 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x01 => types.OpcodeInfo{ .instruction = .ora, .mode = .indirect_x },
         0x11 => types.OpcodeInfo{ .instruction = .ora, .mode = .indirect_y },
 
+        0x48 => types.OpcodeInfo{ .instruction = .pha, .mode = .implied },
+        0x08 => types.OpcodeInfo{ .instruction = .php, .mode = .implied },
+        0x68 => types.OpcodeInfo{ .instruction = .pla, .mode = .implied },
+        0x28 => types.OpcodeInfo{ .instruction = .plp, .mode = .implied },
+
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },

@@ -277,3 +277,37 @@ test "test_lsr_zero_page" {
     try std.testing.expect(cpu.status.carry);
     try std.testing.expect(cpu.status.zero);
 }
+
+test "test_pha" {
+    var cpu = CPU{};
+    cpu.accumulator = 123;
+    interpret(&cpu, &[_]u8{ 0x48, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x100 + @as(u16, cpu.stack_pointer) + 1], 123);
+}
+
+test "test_php" {
+    var cpu = CPU{};
+    cpu.status.negative = true;
+    cpu.status.overflow = true;
+    cpu.status.zero = true;
+    interpret(&cpu, &[_]u8{ 0x08, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x100 + @as(u16, cpu.stack_pointer) + 1], 0b1100_0010);
+}
+
+test "test_pla" {
+    var cpu = CPU{};
+    cpu.memory[0x100 + 0xFD] = 123;
+    interpret(&cpu, &[_]u8{ 0x68, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 123);
+    try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 1);
+}
+
+test "test_plp" {
+    var cpu = CPU{};
+    cpu.memory[0x100 + 0xFD] = 0b1100_0010;
+    interpret(&cpu, &[_]u8{ 0x28, 0x00 });
+    try std.testing.expect(cpu.status.negative);
+    try std.testing.expect(cpu.status.overflow);
+    try std.testing.expect(cpu.status.zero);
+    try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 1);
+}
