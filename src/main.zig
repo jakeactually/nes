@@ -231,7 +231,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             },
             .php => {
                 const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-                cpu.memory[stack_addr] = types.status_to_byte(cpu.status);
+                var status_copy = cpu.status;
+                status_copy.break_ = true;
+                status_copy.ignored = true;
+                cpu.memory[stack_addr] = types.status_to_byte(status_copy);
                 cpu.stack_pointer -%= 1;
             },
             .pla => {

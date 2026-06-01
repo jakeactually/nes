@@ -291,7 +291,9 @@ test "test_php" {
     cpu.status.overflow = true;
     cpu.status.zero = true;
     interpret(&cpu, &[_]u8{ 0x08, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x100 + @as(u16, cpu.stack_pointer) + 1], 0b1100_0010);
+    try std.testing.expectEqual(cpu.memory[0x100 + @as(u16, cpu.stack_pointer) + 1], 0b1100_0010 | 0b0011_0000);
+    try std.testing.expect(!cpu.status.break_);
+    try std.testing.expect(!cpu.status.ignored);
 }
 
 test "test_pla" {
