@@ -296,6 +296,12 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;
             },
+            .stx => {
+                cpu.memory[addr] = cpu.register_x;
+            },
+            .sty => {
+                cpu.memory[addr] = cpu.register_y;
+            },
             .tax => {
                 cpu.register_x = cpu.accumulator;
                 update_zero_and_negative_flags(cpu, cpu.register_x);

@@ -360,3 +360,17 @@ test "test_sbc_immediate" {
     try std.testing.expect(cpu.status.carry);
     try std.testing.expect(!cpu.status.overflow);
 }
+
+test "test_stx_zero_page" {
+    var cpu = CPU{};
+    cpu.register_x = 0x02;
+    interpret(&cpu, &[_]u8{ 0x86, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0x02);
+}
+
+test "test_sty_zero_page" {
+    var cpu = CPU{};
+    cpu.register_y = 0x02;
+    interpret(&cpu, &[_]u8{ 0x84, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.memory[0x10], 0x02);
+}

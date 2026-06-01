@@ -170,6 +170,13 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x81 => types.OpcodeInfo{ .instruction = .sta, .mode = .indirect_x },
         0x91 => types.OpcodeInfo{ .instruction = .sta, .mode = .indirect_y },
 
+        0x86 => types.OpcodeInfo{ .instruction = .stx, .mode = .zero_page },
+        0x96 => types.OpcodeInfo{ .instruction = .stx, .mode = .zero_page_y },
+        0x8E => types.OpcodeInfo{ .instruction = .stx, .mode = .absolute },
+        0x84 => types.OpcodeInfo{ .instruction = .sty, .mode = .zero_page },
+        0x94 => types.OpcodeInfo{ .instruction = .sty, .mode = .zero_page_x },
+        0x8C => types.OpcodeInfo{ .instruction = .sty, .mode = .absolute },
+
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },
         else => unreachable,
     };
