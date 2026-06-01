@@ -248,14 +248,14 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .rol => {
                 const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
                 const next_carry = target.* >> 7 == 1;
-                target.* = target.* << 1 | @as(u8, if (cpu.status.carry) 1 else 0);
+                target.* = target.* << 1 | @intFromBool(cpu.status.carry);
                 cpu.status.carry = next_carry;
                 update_zero_and_negative_flags(cpu, target.*);
             },
             .ror => {
                 const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
                 const next_carry = target.* & 1 == 1;
-                target.* = target.* >> 1 | @as(u8, if (cpu.status.carry) 1 else 0) << 7;
+                target.* = target.* >> 1 | @as(u8, if (cpu.status.carry) 0x80 else 0);
                 cpu.status.carry = next_carry;
                 update_zero_and_negative_flags(cpu, target.*);
             },
