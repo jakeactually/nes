@@ -158,6 +158,10 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xE1 => types.OpcodeInfo{ .instruction = .sbc, .mode = .indirect_x },
         0xF1 => types.OpcodeInfo{ .instruction = .sbc, .mode = .indirect_y },
 
+        0x38 => types.OpcodeInfo{ .instruction = .sec, .mode = .implied },
+        0xF8 => types.OpcodeInfo{ .instruction = .sed, .mode = .implied },
+        0x78 => types.OpcodeInfo{ .instruction = .sei, .mode = .implied },
+
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },

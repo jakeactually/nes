@@ -284,6 +284,15 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.accumulator = result;
                 update_zero_and_negative_flags(cpu, cpu.accumulator);
             },
+            .sec => {
+                cpu.status.carry = true;
+            },
+            .sed => {
+                cpu.status.decimal = true;
+            },
+            .sei => {
+                cpu.status.interrupt = true;
+            },
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;
             },
