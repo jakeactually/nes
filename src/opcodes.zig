@@ -135,6 +135,17 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x68 => types.OpcodeInfo{ .instruction = .pla, .mode = .implied },
         0x28 => types.OpcodeInfo{ .instruction = .plp, .mode = .implied },
 
+        0x2A => types.OpcodeInfo{ .instruction = .rol, .mode = .accumulator },
+        0x26 => types.OpcodeInfo{ .instruction = .rol, .mode = .zero_page },
+        0x36 => types.OpcodeInfo{ .instruction = .rol, .mode = .zero_page_x },
+        0x2E => types.OpcodeInfo{ .instruction = .rol, .mode = .absolute },
+        0x3E => types.OpcodeInfo{ .instruction = .rol, .mode = .absolute_x },
+        0x6A => types.OpcodeInfo{ .instruction = .ror, .mode = .accumulator },
+        0x66 => types.OpcodeInfo{ .instruction = .ror, .mode = .zero_page },
+        0x76 => types.OpcodeInfo{ .instruction = .ror, .mode = .zero_page_x },
+        0x6E => types.OpcodeInfo{ .instruction = .ror, .mode = .absolute },
+        0x7E => types.OpcodeInfo{ .instruction = .ror, .mode = .absolute_x },
+
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },

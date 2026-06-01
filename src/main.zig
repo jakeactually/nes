@@ -15,7 +15,7 @@ fn load(cpu: *types.CPU, program: []const u8) void {
 
 fn update_zero_and_negative_flags(cpu: *types.CPU, value: u8) void {
     cpu.status.zero = value == 0;
-    cpu.status.negative = value & 0b1000_0000 != 0;
+    cpu.status.negative = value >> 7 == 1;
 }
 
 fn get_operand_address(cpu: *types.CPU, mode: types.AddressingMode) u16 {
@@ -244,6 +244,20 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
                 cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
                 cpu.stack_pointer +%= 1;
+            },
+            .rol => {
+                const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
+                const next_carry = target.* >> 7 == 1;
+                target.* = target.* << 1 | @as(u8, if (cpu.status.carry) 1 else 0);
+                cpu.status.carry = next_carry;
+                update_zero_and_negative_flags(cpu, target.*);
+            },
+            .ror => {
+                const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
+                const next_carry = target.* & 1 == 1;
+                target.* = target.* >> 1 | @as(u8, if (cpu.status.carry) 1 else 0) << 7;
+                cpu.status.carry = next_carry;
+                update_zero_and_negative_flags(cpu, target.*);
             },
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;

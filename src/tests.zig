@@ -311,3 +311,21 @@ test "test_plp" {
     try std.testing.expect(cpu.status.zero);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 1);
 }
+
+test "test_rol_accumulator" {
+    var cpu = CPU{};
+    cpu.status.carry = true;
+    cpu.accumulator = 0b0100_1001;
+    interpret(&cpu, &[_]u8{ 0x2A, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 0b1001_0011);
+    try std.testing.expect(!cpu.status.carry);
+}
+
+test "test_ror_accumulator" {
+    var cpu = CPU{};
+    cpu.status.carry = true;
+    cpu.accumulator = 0b0100_1000;
+    interpret(&cpu, &[_]u8{ 0x6A, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 0b1010_0100);
+    try std.testing.expect(!cpu.status.carry);
+}
