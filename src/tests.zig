@@ -309,6 +309,7 @@ test "test_plp" {
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
     try std.testing.expect(cpu.status.zero);
+    try std.testing.expect(cpu.status.ignored);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 1);
 }
 
@@ -339,6 +340,7 @@ test "test_rti" {
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
     try std.testing.expect(cpu.status.zero);
+    try std.testing.expect(cpu.status.ignored);
     try std.testing.expectEqual(cpu.program_counter, 0x3412 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0);
 }

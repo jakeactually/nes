@@ -244,6 +244,8 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
                 cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
                 cpu.stack_pointer +%= 1;
+                cpu.status.break_ = false;
+                cpu.status.ignored = true;
             },
             .rol => {
                 const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
@@ -262,10 +264,10 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
             .rti => {
                 const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
                 cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
-                cpu.status.break_ = true;
-                cpu.status.ignored = true;
                 cpu.program_counter = @as(u16, cpu.memory[stack_addr +% 2]) << 8 | cpu.memory[stack_addr +% 1];
                 cpu.stack_pointer +%= 3;
+                cpu.status.break_ = false;
+                cpu.status.ignored = true;
             },
             .rts => {
                 const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
