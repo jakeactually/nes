@@ -325,9 +325,6 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.accumulator = cpu.register_y;
                 update_zero_and_negative_flags(cpu, cpu.accumulator);
             },
-            else => {
-                return;
-            },
         }
 
         cpu.program_counter += instruction_offset(info.mode);
