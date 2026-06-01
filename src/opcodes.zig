@@ -146,6 +146,8 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x6E => types.OpcodeInfo{ .instruction = .ror, .mode = .absolute },
         0x7E => types.OpcodeInfo{ .instruction = .ror, .mode = .absolute_x },
 
+        0x40 => types.OpcodeInfo{ .instruction = .rti, .mode = .implied },
+
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },

@@ -259,6 +259,15 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.status.carry = next_carry;
                 update_zero_and_negative_flags(cpu, target.*);
             },
+            .rti => {
+                const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+                cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
+                cpu.status.break_ = true;
+                cpu.status.ignored = true;
+                cpu.program_counter = @as(u16, cpu.memory[stack_addr +% 2]) << 8 | cpu.memory[stack_addr +% 1];
+                cpu.stack_pointer +%= 3;
+                continue;
+            },
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;
             },
