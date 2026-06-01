@@ -178,6 +178,12 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x8C => types.OpcodeInfo{ .instruction = .sty, .mode = .absolute },
 
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },
+        0xA8 => types.OpcodeInfo{ .instruction = .tay, .mode = .implied },
+        0xBA => types.OpcodeInfo{ .instruction = .tsx, .mode = .implied },
+        0x8A => types.OpcodeInfo{ .instruction = .txa, .mode = .implied },
+        0x9A => types.OpcodeInfo{ .instruction = .txs, .mode = .implied },
+        0x98 => types.OpcodeInfo{ .instruction = .tya, .mode = .implied },
+
         else => unreachable,
     };
 }

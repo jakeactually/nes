@@ -306,6 +306,25 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.register_x = cpu.accumulator;
                 update_zero_and_negative_flags(cpu, cpu.register_x);
             },
+            .tay => {
+                cpu.register_y = cpu.accumulator;
+                update_zero_and_negative_flags(cpu, cpu.register_y);
+            },
+            .tsx => {
+                cpu.register_x = cpu.stack_pointer;
+                update_zero_and_negative_flags(cpu, cpu.register_x);
+            },
+            .txa => {
+                cpu.accumulator = cpu.register_x;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
+            .txs => {
+                cpu.stack_pointer = cpu.register_x;
+            },
+            .tya => {
+                cpu.accumulator = cpu.register_y;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            },
             else => {
                 return;
             },
