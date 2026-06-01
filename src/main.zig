@@ -77,7 +77,7 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
 
         switch (info.instruction) {
             .adc => {
-                const data = @as(u16, cpu.memory[addr]);
+                const data = cpu.memory[addr];
                 const sum = @as(u16, cpu.accumulator) + data + @intFromBool(cpu.status.carry);
                 const result: u8 = @truncate(sum);
                 cpu.status.carry = sum > 0xff;
@@ -272,6 +272,17 @@ pub fn interpret(cpu: *types.CPU, program: []const u8) void {
                 cpu.program_counter = @as(u16, cpu.memory[stack_addr +% 1]) << 8 | cpu.memory[stack_addr];
                 cpu.program_counter += 1;
                 cpu.stack_pointer +%= 2;
+            },
+            .sbc => {
+                const complement: i8 = @bitCast(cpu.memory[addr]);
+                const data: u8 = @bitCast(-%complement -% 1);
+
+                const sum = @as(u16, cpu.accumulator) + data + @intFromBool(cpu.status.carry);
+                const result: u8 = @truncate(sum);
+                cpu.status.carry = sum > 0xff;
+                cpu.status.overflow = (data ^ result) & (result ^ cpu.accumulator) & 0x80 != 0;
+                cpu.accumulator = result;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
             },
             .sta => {
                 cpu.memory[addr] = cpu.accumulator;

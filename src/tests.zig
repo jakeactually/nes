@@ -351,3 +351,12 @@ test "test_rts" {
     try std.testing.expectEqual(cpu.program_counter, 0x3412 + 2);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 2);
 }
+
+test "test_sbc_immediate" {
+    var cpu = CPU{};
+    cpu.accumulator = 7;
+    interpret(&cpu, &[_]u8{ 0xE9, 2, 0x00 });
+    try std.testing.expectEqual(cpu.accumulator, 5 - 1);
+    try std.testing.expect(cpu.status.carry);
+    try std.testing.expect(!cpu.status.overflow);
+}
