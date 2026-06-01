@@ -342,3 +342,12 @@ test "test_rti" {
     try std.testing.expectEqual(cpu.program_counter, 0x3412 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0);
 }
+
+test "test_rts" {
+    var cpu = CPU{};
+    cpu.memory[0x100 + 0xFD] = 0x12;
+    cpu.memory[0x100 + 0xFE] = 0x34;
+    interpret(&cpu, &[_]u8{ 0x60, 0x00 });
+    try std.testing.expectEqual(cpu.program_counter, 0x3412 + 2);
+    try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 2);
+}
