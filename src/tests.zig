@@ -333,12 +333,12 @@ test "test_ror_accumulator" {
 test "test_rti" {
     var cpu = CPU{};
     cpu.memory[0x100 + 0xFD] = 0b1100_0010;
-    cpu.memory[0x100 + 0xFC] = 12;
-    cpu.memory[0x100 + 0xFB] = 34;
+    cpu.memory[0x100 + 0xFE] = 0x12;
+    cpu.memory[0x100 + 0xFF] = 0x34;
     interpret(&cpu, &[_]u8{ 0x40, 0x00 });
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
     try std.testing.expect(cpu.status.zero);
-    try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
-    try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x3412 + 1);
+    try std.testing.expectEqual(cpu.stack_pointer, 0);
 }
