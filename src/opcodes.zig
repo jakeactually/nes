@@ -164,6 +164,12 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
 
         0x85 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page },
         0x95 => types.OpcodeInfo{ .instruction = .sta, .mode = .zero_page_x },
+        0x8D => types.OpcodeInfo{ .instruction = .sta, .mode = .absolute },
+        0x9D => types.OpcodeInfo{ .instruction = .sta, .mode = .absolute_x },
+        0x99 => types.OpcodeInfo{ .instruction = .sta, .mode = .absolute_y },
+        0x81 => types.OpcodeInfo{ .instruction = .sta, .mode = .indirect_x },
+        0x91 => types.OpcodeInfo{ .instruction = .sta, .mode = .indirect_y },
+
         0xAA => types.OpcodeInfo{ .instruction = .tax, .mode = .implied },
         else => unreachable,
     };
