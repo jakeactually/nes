@@ -176,21 +176,18 @@ pub fn step(cpu: *types.CPU) bool {
         },
         .cmp => {
             const value = cpu.memory[addr];
-            cpu.status.carry = cpu.accumulator >= value;
-            cpu.status.zero = cpu.accumulator == value;
-            cpu.status.negative = value >> 7 == 1;
+            cpu.status.carry = cpu.accumulator <= value;
+            update_zero_and_negative_flags(cpu, cpu.accumulator -% value);
         },
         .cpx => {
             const value = cpu.memory[addr];
-            cpu.status.carry = cpu.register_x >= value;
-            cpu.status.zero = cpu.register_x == value;
-            cpu.status.negative = value >> 7 == 1;
+            cpu.status.carry = cpu.register_x <= value;
+            update_zero_and_negative_flags(cpu, cpu.register_x -% value);
         },
         .cpy => {
             const value = cpu.memory[addr];
-            cpu.status.carry = cpu.register_y >= value;
-            cpu.status.zero = cpu.register_y == value;
-            cpu.status.negative = value >> 7 == 1;
+            cpu.status.carry = cpu.register_y <= value;
+            update_zero_and_negative_flags(cpu, cpu.register_y -% value);
         },
         .dec => {
             cpu.memory[addr] -%= 1;
