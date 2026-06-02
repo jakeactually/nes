@@ -5,7 +5,7 @@ const windows = @import("windows.zig");
 
 const PIXEL_SIZE = 10;
 const TIMER_ID: usize = 1;
-const TICK_MS: windows.UINT = 16; // ~60 Hz
+const TICK_MS: windows.UINT = 32;
 const MEMORY_BASE: usize = 0x0200;
 const MEMORY_END: usize = 0x0600;
 const GRID_SIZE: usize = 32;
@@ -106,8 +106,12 @@ pub fn main() !void {
 
     var msg: windows.MSG = undefined;
 
-    while (cpu_mod.step(&cpu)) {
+    while (true) {
         cpu.memory[0xfe] = prng.random().int(u8);
+
+        for (0..60) |_| {
+            _ = cpu_mod.step(&cpu);
+        }
 
         if (windows.GetMessageW(&msg, null, 0, 0) > 0) {
             _ = windows.TranslateMessage(&msg);
