@@ -9,6 +9,7 @@ const MEMORY_END: usize = 0x0600;
 const GRID_SIZE: usize = 32;
 
 var cpu = types.CPU{};
+var prng = std.Random.DefaultPrng.init(0x1234_5678_9ABC_DEF0);
 
 fn renderMemory(hdc: windows.HDC) void {
     var y: usize = 0;
@@ -47,7 +48,11 @@ pub fn wndProc(
             windows.PostQuitMessage(0);
             return 0;
         },
-        windows.WM_KEYDOWN, windows.WM_KEYUP => {
+        windows.WM_KEYDOWN => {
+            _ = cpu_mod.step(&cpu);
+            std.debug.print("{}\n", .{cpu.program_counter});
+
+            cpu.memory[0xfe] = prng.random().int(u8);
             cpu.memory[0xff] = @truncate(wparam + 0x20);
             _ = windows.InvalidateRect(hwnd, null, 0);
             return 0;
@@ -57,6 +62,9 @@ pub fn wndProc(
 }
 
 pub fn main() !void {
+    cpu_mod.load_and_reset(&cpu, &cpu_mod.game_code);
+    cpu.memory[0xfe] = prng.random().int(u8);
+
     const class_name = std.unicode.utf8ToUtf16LeStringLiteral("MyWindowClass");
     const title = std.unicode.utf8ToUtf16LeStringLiteral("Hello from Zig");
 
