@@ -5,6 +5,9 @@ pub const HINSTANCE = ?*anyopaque;
 pub const HICON = ?*anyopaque;
 pub const HCURSOR = ?*anyopaque;
 pub const HBRUSH = ?*anyopaque;
+pub const HDC = ?*anyopaque;
+pub const HPEN = ?*anyopaque;
+pub const HGDIOBJ = ?*anyopaque;
 pub const LPCWSTR = [*:0]const u16;
 pub const UINT = u32;
 pub const WPARAM = usize;
@@ -68,8 +71,36 @@ pub extern "user32" fn DefWindowProcW(
     lParam: LPARAM,
 ) LRESULT;
 pub extern "user32" fn PostQuitMessage(exit_code: i32) void;
+pub extern "user32" fn BeginPaint(hWnd: HWND, lpPaint: *PAINTSTRUCT) HDC;
+pub extern "user32" fn EndPaint(hWnd: HWND, lpPaint: *const PAINTSTRUCT) i32;
+
+pub extern "gdi32" fn Rectangle(hdc: HDC, left: i32, top: i32, right: i32, bottom: i32) i32;
+pub extern "gdi32" fn CreatePen(iStyle: i32, cWidth: i32, color: u32) HPEN;
+pub extern "gdi32" fn SelectObject(hdc: HDC, h: HGDIOBJ) HGDIOBJ;
+pub extern "gdi32" fn DeleteObject(ho: HGDIOBJ) i32;
+pub extern "gdi32" fn GetStockObject(i: i32) HGDIOBJ;
+
+pub const RECT = extern struct {
+    left: i32,
+    top: i32,
+    right: i32,
+    bottom: i32,
+};
+
+pub const PAINTSTRUCT = extern struct {
+    hdc: HDC,
+    fErase: i32,
+    rcPaint: RECT,
+    fRestore: i32,
+    fIncUpdate: i32,
+    rgbReserved: [32]u8,
+};
+
+pub const PS_SOLID: i32 = 0;
+pub const HOLLOW_BRUSH: i32 = 5;
 
 pub const WM_DESTROY = 0x0002;
+pub const WM_PAINT = 0x000F;
 pub const WM_KEYDOWN = 0x0100;
 pub const WM_KEYUP = 0x0101;
 pub const WS_OVERLAPPEDWINDOW = 0x00CF0000;

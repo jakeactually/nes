@@ -10,6 +10,21 @@ pub fn wndProc(
     lparam: windows.LPARAM,
 ) callconv(.winapi) windows.LRESULT {
     switch (msg) {
+        windows.WM_PAINT => {
+            var ps: windows.PAINTSTRUCT = undefined;
+            const hdc = windows.BeginPaint(hwnd, &ps);
+
+            const pen = windows.CreatePen(windows.PS_SOLID, 2, 0x00FF0000); // blue (BGR)
+            const old_pen = windows.SelectObject(hdc, pen);
+            const old_brush = windows.SelectObject(hdc, windows.GetStockObject(windows.HOLLOW_BRUSH));
+            _ = windows.Rectangle(hdc, 100, 80, 400, 280);
+            _ = windows.SelectObject(hdc, old_brush);
+            _ = windows.SelectObject(hdc, old_pen);
+            _ = windows.DeleteObject(pen);
+
+            _ = windows.EndPaint(hwnd, &ps);
+            return 0;
+        },
         windows.WM_DESTROY => {
             windows.PostQuitMessage(0);
             return 0;
