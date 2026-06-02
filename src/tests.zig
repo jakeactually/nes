@@ -5,7 +5,7 @@ const CPU = @import("types.zig").CPU;
 test "test_load_and_reset" {
     var cpu = CPU{};
     interpret(&cpu, &[_]u8{0x00});
-    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 1);
+    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD);
 }
 
@@ -125,28 +125,28 @@ test "test_bcc" {
     var cpu = CPU{};
     cpu.status.carry = false;
     interpret(&cpu, &[_]u8{ 0x90, 10 });
-    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 10 + 3);
 }
 
 test "test_bcc_negative" {
     var cpu = CPU{};
     cpu.status.carry = false;
     interpret(&cpu, &[_]u8{ 0x90, @bitCast(@as(i8, -10)) });
-    try std.testing.expectEqual(cpu.program_counter, 0x8000 - 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0600 - 10 + 3);
 }
 
 test "test_bcs" {
     var cpu = CPU{};
     cpu.status.carry = true;
     interpret(&cpu, &[_]u8{ 0xB0, 10 });
-    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 10 + 3);
 }
 
 test "test_beq" {
     var cpu = CPU{};
     cpu.status.zero = true;
     interpret(&cpu, &[_]u8{ 0xF0, 10 });
-    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 10 + 3);
 }
 
 test "test_bit_zero_page" {
@@ -256,7 +256,7 @@ test "test_jsr" {
     interpret(&cpu, &[_]u8{ 0x20, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD - 2);
-    try std.testing.expectEqual(cpu.memory[0x100 + 0xFD], 0x80);
+    try std.testing.expectEqual(cpu.memory[0x100 + 0xFD], 0x06);
     try std.testing.expectEqual(cpu.memory[0x100 + 0xFD - 1], 0x02);
 }
 
