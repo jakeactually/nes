@@ -80,6 +80,29 @@ fn branch(cpu: *types.CPU, condition: bool, addr: u16) void {
     }
 }
 
+fn stack_push(cpu: *types.CPU, value: u8) void {
+    const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+    cpu.memory[stack_addr] = value;
+    cpu.stack_pointer -%= 1;
+}
+
+fn stack_pop(cpu: *types.CPU) u8 {
+    cpu.stack_pointer +%= 1;
+    const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
+    return cpu.memory[stack_addr];
+}
+
+fn stack_push_u16(cpu: *types.CPU, value: u16) void {
+    stack_push(cpu, @truncate(value >> 8));
+    stack_push(cpu, @truncate(value));
+}
+
+fn stack_pop_u16(cpu: *types.CPU) u16 {
+    const low = stack_pop(cpu);
+    const high = stack_pop(cpu);
+    return @as(u16, high) << 8 | low;
+}
+
 pub fn step(cpu: *types.CPU) bool {
     const opcode = cpu.memory[cpu.program_counter];
     cpu.program_counter += 1;
@@ -202,11 +225,7 @@ pub fn step(cpu: *types.CPU) bool {
             return true;
         },
         .jsr => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-            const return_addr = cpu.program_counter + 1;
-            cpu.memory[stack_addr] = @truncate(return_addr >> 8);
-            cpu.memory[stack_addr -% 1] = @truncate(return_addr);
-            cpu.stack_pointer -%= 2;
+            stack_push_u16(cpu, cpu.program_counter + 2 - 1);
             cpu.program_counter = addr;
             return true;
         },
@@ -236,28 +255,20 @@ pub fn step(cpu: *types.CPU) bool {
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .pha => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-            cpu.memory[stack_addr] = cpu.accumulator;
-            cpu.stack_pointer -%= 1;
+            stack_push(cpu, cpu.accumulator);
         },
         .php => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
             var status_copy = cpu.status;
             status_copy.break_ = true;
             status_copy.ignored = true;
-            cpu.memory[stack_addr] = types.status_to_byte(status_copy);
-            cpu.stack_pointer -%= 1;
+            stack_push(cpu, types.status_to_byte(status_copy));
         },
         .pla => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-            cpu.accumulator = cpu.memory[stack_addr];
-            cpu.stack_pointer +%= 1;
+            cpu.accumulator = stack_pop(cpu);
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .plp => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-            cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
-            cpu.stack_pointer +%= 1;
+            cpu.status = types.byte_to_status(stack_pop(cpu));
             cpu.status.break_ = false;
             cpu.status.ignored = true;
         },
@@ -276,18 +287,13 @@ pub fn step(cpu: *types.CPU) bool {
             update_zero_and_negative_flags(cpu, target.*);
         },
         .rti => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-            cpu.status = types.byte_to_status(cpu.memory[stack_addr]);
-            cpu.program_counter = @as(u16, cpu.memory[stack_addr +% 2]) << 8 | cpu.memory[stack_addr +% 1];
-            cpu.stack_pointer +%= 3;
+            cpu.status = types.byte_to_status(stack_pop(cpu));
+            cpu.program_counter = stack_pop_u16(cpu);
             cpu.status.break_ = false;
             cpu.status.ignored = true;
         },
         .rts => {
-            const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-            cpu.program_counter = @as(u16, cpu.memory[stack_addr +% 1]) << 8 | cpu.memory[stack_addr];
-            cpu.program_counter += 1;
-            cpu.stack_pointer +%= 2;
+            cpu.program_counter = stack_pop_u16(cpu) + 1;
         },
         .sbc => {
             const complement: i8 = @bitCast(cpu.memory[addr]);

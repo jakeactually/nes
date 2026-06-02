@@ -298,7 +298,7 @@ test "test_php" {
 
 test "test_pla" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFD] = 123;
+    cpu.memory[0x100 + 0xFE] = 123;
     interpret(&cpu, &[_]u8{ 0x68, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 1);
@@ -306,7 +306,7 @@ test "test_pla" {
 
 test "test_plp" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFD] = 0b1100_0010;
+    cpu.memory[0x100 + 0xFE] = 0b1100_0010;
     interpret(&cpu, &[_]u8{ 0x28, 0x00 });
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
@@ -335,9 +335,9 @@ test "test_ror_accumulator" {
 
 test "test_rti" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFD] = 0b1100_0010;
-    cpu.memory[0x100 + 0xFE] = 0x12;
-    cpu.memory[0x100 + 0xFF] = 0x34;
+    cpu.memory[0x100 + 0xFE] = 0b1100_0010;
+    cpu.memory[0x100 + 0xFF] = 0x12;
+    cpu.memory[0x100 + 0] = 0x34;
     interpret(&cpu, &[_]u8{ 0x40, 0x00 });
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
@@ -349,8 +349,8 @@ test "test_rti" {
 
 test "test_rts" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFD] = 0x12;
-    cpu.memory[0x100 + 0xFE] = 0x34;
+    cpu.memory[0x100 + 0xFE] = 0x12;
+    cpu.memory[0x100 + 0xFF] = 0x34;
     interpret(&cpu, &[_]u8{ 0x60, 0x00 });
     try std.testing.expectEqual(cpu.program_counter, 0x3412 + 2);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 2);
