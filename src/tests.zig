@@ -1,5 +1,5 @@
 const std = @import("std");
-const interpret = @import("main.zig").interpret;
+const interpret = @import("cpu.zig").interpret;
 const CPU = @import("types.zig").CPU;
 
 test "test_load_and_reset" {
