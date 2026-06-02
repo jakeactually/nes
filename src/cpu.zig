@@ -73,10 +73,13 @@ fn instruction_offset(mode: types.AddressingMode) u16 {
     };
 }
 
-fn branch(cpu: *types.CPU, condition: bool, addr: u16) void {
+fn branch(cpu: *types.CPU, condition: bool) void {
     if (condition) {
-        const jump: i8 = @bitCast(@as(u8, @truncate(addr)));
-        if (condition) cpu.program_counter +%= 1 +% @as(u16, @bitCast(@as(i16, jump)));
+        const jump: i8 = @bitCast(cpu.memory[cpu.program_counter]);
+        const jump_addr = cpu.program_counter +% 1 +% @as(u16, @bitCast(@as(i16, jump)));
+        cpu.program_counter = jump_addr;
+    } else {
+        cpu.program_counter += 1;
     }
 }
 
@@ -130,13 +133,13 @@ pub fn step(cpu: *types.CPU) bool {
             update_zero_and_negative_flags(cpu, target.*);
         },
         .bcc => {
-            branch(cpu, !cpu.status.carry, addr);
+            branch(cpu, !cpu.status.carry);
         },
         .bcs => {
-            branch(cpu, cpu.status.carry, addr);
+            branch(cpu, cpu.status.carry);
         },
         .beq => {
-            branch(cpu, cpu.status.zero, addr);
+            branch(cpu, cpu.status.zero);
         },
         .bit => {
             const value = cpu.memory[addr];
@@ -145,22 +148,22 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.status.negative = value >> 7 == 1;
         },
         .bmi => {
-            branch(cpu, cpu.status.negative, addr);
+            branch(cpu, cpu.status.negative);
         },
         .bne => {
-            branch(cpu, !cpu.status.zero, addr);
+            branch(cpu, !cpu.status.zero);
         },
         .bpl => {
-            branch(cpu, !cpu.status.negative, addr);
+            branch(cpu, !cpu.status.negative);
         },
         .brk => {
             return false;
         },
         .bvc => {
-            branch(cpu, !cpu.status.overflow, addr);
+            branch(cpu, !cpu.status.overflow);
         },
         .bvs => {
-            branch(cpu, cpu.status.overflow, addr);
+            branch(cpu, cpu.status.overflow);
         },
         .clc => {
             cpu.status.carry = false;
