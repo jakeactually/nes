@@ -83,6 +83,13 @@ pub extern "gdi32" fn CreateSolidBrush(color: u32) HBRUSH;
 
 pub extern "user32" fn FillRect(hdc: HDC, lprc: *const RECT, hbr: HBRUSH) i32;
 pub extern "user32" fn InvalidateRect(hWnd: HWND, lpRect: ?*const RECT, bErase: i32) i32;
+pub extern "user32" fn SetTimer(
+    hWnd: HWND,
+    nIDEvent: usize,
+    uElapse: UINT,
+    lpTimerFunc: ?*anyopaque,
+) usize;
+pub extern "user32" fn KillTimer(hWnd: HWND, uIDEvent: usize) i32;
 
 pub const RECT = extern struct {
     left: i32,
@@ -107,5 +114,6 @@ pub const WM_DESTROY = 0x0002;
 pub const WM_PAINT = 0x000F;
 pub const WM_KEYDOWN = 0x0100;
 pub const WM_KEYUP = 0x0101;
+pub const WM_TIMER = 0x0113;
 pub const WS_OVERLAPPEDWINDOW = 0x00CF0000;
 pub const CW_USEDEFAULT = -2147483648;

@@ -2,9 +2,10 @@ const std = @import("std");
 const types = @import("types.zig");
 const cpu_mod = @import("cpu.zig");
 const windows = @import("windows.zig");
-const opcodes_info = @import("opcodes.zig").opcode_info;
 
 const PIXEL_SIZE = 10;
+const TIMER_ID: usize = 1;
+const TICK_MS: windows.UINT = 16; // ~60 Hz
 const MEMORY_BASE: usize = 0x0200;
 const MEMORY_END: usize = 0x0600;
 const GRID_SIZE: usize = 32;
@@ -37,10 +38,12 @@ pub fn wndProc(
     wparam: windows.WPARAM,
     lparam: windows.LPARAM,
 ) callconv(.winapi) windows.LRESULT {
-    cpu.memory[0xfe] = prng.random().int(u8);
-    _ = windows.InvalidateRect(hwnd, null, 0);
-
     switch (msg) {
+        windows.WM_TIMER => {
+            if (wparam != TIMER_ID) return 0;
+            _ = windows.InvalidateRect(hwnd, null, 0);
+            return 0;
+        },
         windows.WM_PAINT => {
             var ps: windows.PAINTSTRUCT = undefined;
             const hdc = windows.BeginPaint(hwnd, &ps);
@@ -49,16 +52,12 @@ pub fn wndProc(
             return 0;
         },
         windows.WM_DESTROY => {
+            _ = windows.KillTimer(hwnd, TIMER_ID);
             windows.PostQuitMessage(0);
             return 0;
         },
         windows.WM_KEYDOWN => {
-            const instruction = opcodes_info(cpu.memory[cpu.program_counter]).instruction;
-            std.debug.print("pc {x} op {}\n", .{ cpu.program_counter, instruction });
-            _ = cpu_mod.step(&cpu);
-
             cpu.memory[0xff] = @truncate(wparam + 0x20);
-            _ = windows.InvalidateRect(hwnd, null, 0);
             return 0;
         },
         else => return windows.DefWindowProcW(hwnd, msg, wparam, lparam),
@@ -103,10 +102,16 @@ pub fn main() !void {
 
     _ = windows.ShowWindow(hwnd, 1);
     _ = windows.UpdateWindow(hwnd);
+    _ = windows.SetTimer(hwnd, TIMER_ID, TICK_MS, null);
 
     var msg: windows.MSG = undefined;
-    while (windows.GetMessageW(&msg, null, 0, 0) > 0) {
-        _ = windows.TranslateMessage(&msg);
-        _ = windows.DispatchMessageW(&msg);
+
+    while (cpu_mod.step(&cpu)) {
+        cpu.memory[0xfe] = prng.random().int(u8);
+
+        if (windows.GetMessageW(&msg, null, 0, 0) > 0) {
+            _ = windows.TranslateMessage(&msg);
+            _ = windows.DispatchMessageW(&msg);
+        }
     }
 }
