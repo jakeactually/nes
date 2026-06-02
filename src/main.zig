@@ -2,6 +2,7 @@ const std = @import("std");
 const types = @import("types.zig");
 const cpu_mod = @import("cpu.zig");
 const windows = @import("windows.zig");
+const opcodes_info = @import("opcodes.zig").opcode_info;
 
 const PIXEL_SIZE = 10;
 const MEMORY_BASE: usize = 0x0200;
@@ -36,6 +37,9 @@ pub fn wndProc(
     wparam: windows.WPARAM,
     lparam: windows.LPARAM,
 ) callconv(.winapi) windows.LRESULT {
+    cpu.memory[0xfe] = prng.random().int(u8);
+    _ = windows.InvalidateRect(hwnd, null, 0);
+
     switch (msg) {
         windows.WM_PAINT => {
             var ps: windows.PAINTSTRUCT = undefined;
@@ -49,10 +53,10 @@ pub fn wndProc(
             return 0;
         },
         windows.WM_KEYDOWN => {
+            const instruction = opcodes_info(cpu.memory[cpu.program_counter]).instruction;
+            std.debug.print("pc {x} op {}\n", .{ cpu.program_counter, instruction });
             _ = cpu_mod.step(&cpu);
-            std.debug.print("{}\n", .{cpu.program_counter});
 
-            cpu.memory[0xfe] = prng.random().int(u8);
             cpu.memory[0xff] = @truncate(wparam + 0x20);
             _ = windows.InvalidateRect(hwnd, null, 0);
             return 0;
@@ -63,7 +67,6 @@ pub fn wndProc(
 
 pub fn main() !void {
     cpu_mod.load_and_reset(&cpu, &cpu_mod.game_code);
-    cpu.memory[0xfe] = prng.random().int(u8);
 
     const class_name = std.unicode.utf8ToUtf16LeStringLiteral("MyWindowClass");
     const title = std.unicode.utf8ToUtf16LeStringLiteral("Hello from Zig");
