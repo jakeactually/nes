@@ -1,8 +1,51 @@
 const std = @import("std");
 const types = @import("types.zig");
+const windows = @import("windows.zig");
 const opcodes_info = @import("opcodes.zig").opcode_info;
 
-pub fn main() !void {}
+pub fn main() !void {
+    const class_name = std.unicode.utf8ToUtf16LeStringLiteral("MyWindowClass");
+    const title = std.unicode.utf8ToUtf16LeStringLiteral("Hello from Zig");
+
+    var wc = windows.WNDCLASSW{
+        .style = 0,
+        .lpfnWndProc = windows.wndProc,
+        .cbClsExtra = 0,
+        .cbWndExtra = 0,
+        .hInstance = null,
+        .hIcon = null,
+        .hCursor = null,
+        .hbrBackground = @ptrFromInt(6), // COLOR_WINDOW + 1
+        .lpszMenuName = null,
+        .lpszClassName = class_name,
+    };
+
+    _ = windows.RegisterClassW(&wc);
+
+    const hwnd = windows.CreateWindowExW(
+        0,
+        class_name,
+        title,
+        windows.WS_OVERLAPPEDWINDOW,
+        windows.CW_USEDEFAULT,
+        windows.CW_USEDEFAULT,
+        800,
+        600,
+        null,
+        null,
+        null,
+        null,
+    );
+
+    _ = windows.ShowWindow(hwnd, 1);
+    _ = windows.UpdateWindow(hwnd);
+
+    var msg: windows.MSG = undefined;
+    while (windows.GetMessageW(&msg, null, 0, 0) > 0) {
+        _ = windows.TranslateMessage(&msg);
+        _ = windows.DispatchMessageW(&msg);
+    }
+}
 
 fn reset(cpu: *types.CPU) void {
     cpu.program_counter = @as(u16, cpu.memory[0xFFFC + 1]) << 8 | cpu.memory[0xFFFC];
