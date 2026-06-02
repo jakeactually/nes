@@ -69,7 +69,17 @@ pub extern "user32" fn DefWindowProcW(
 ) LRESULT;
 pub extern "user32" fn PostQuitMessage(exit_code: i32) void;
 
+pub extern "kernel32" fn WriteFile(
+    hFile: ?*anyopaque,
+    lpBuffer: [*]const u8,
+    nNumberOfBytesToWrite: u32,
+    lpNumberOfBytesWritten: ?*u32,
+    lpOverlapped: ?*anyopaque,
+) callconv(.winapi) i32;
+
 pub const WM_DESTROY = 0x0002;
+pub const WM_KEYDOWN = 0x0100;
+pub const WM_KEYUP = 0x0101;
 pub const WS_OVERLAPPEDWINDOW = 0x00CF0000;
 pub const CW_USEDEFAULT = -2147483648;
 
@@ -82,6 +92,14 @@ pub fn wndProc(
     switch (msg) {
         WM_DESTROY => {
             PostQuitMessage(0);
+            return 0;
+        },
+        WM_KEYDOWN, WM_KEYUP => {
+            var buf: [64]u8 = undefined;
+            const action: []const u8 = if (msg == WM_KEYDOWN) "down" else "up";
+            const text = std.fmt.bufPrint(&buf, "key {s}: vk=0x{X}\n", .{ action, wparam }) catch return 0;
+            var written: u32 = undefined;
+            _ = WriteFile(std.Io.File.stdout().handle, text.ptr, @intCast(text.len), &written, null);
             return 0;
         },
         else => return DefWindowProcW(hwnd, msg, wparam, lparam),
