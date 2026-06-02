@@ -123,3 +123,17 @@ pub const AddressingMode = enum {
     indirect_y,
     relative,
 };
+
+pub fn color(byte: u8) u32 {
+    return switch (byte) {
+        0 => 0x000000, // BLACK
+        1 => 0xFFFFFF, // WHITE
+        2, 9 => 0x808080, // GREY
+        3, 10 => 0x0000FF, // RED
+        4, 11 => 0x00FF00, // GREEN
+        5, 12 => 0xFF0000, // BLUE
+        6, 13 => 0xFF00FF, // MAGENTA
+        7, 14 => 0x00FFFF, // YELLOW
+        else => 0xFFFF00, // CYAN
+    };
+}

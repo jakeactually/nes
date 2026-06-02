@@ -1,7 +1,33 @@
 const std = @import("std");
 const types = @import("types.zig");
-const cpu = @import("cpu.zig");
+const cpu_mod = @import("cpu.zig");
 const windows = @import("windows.zig");
+
+const PIXEL_SIZE = 10;
+const MEMORY_BASE: usize = 0x0200;
+const MEMORY_END: usize = 0x0600;
+const GRID_SIZE: usize = 32;
+
+var cpu = types.CPU{};
+
+fn renderMemory(hdc: windows.HDC) void {
+    var y: usize = 0;
+    while (y < GRID_SIZE) : (y += 1) {
+        var x: usize = 0;
+        while (x < GRID_SIZE) : (x += 1) {
+            const byte = cpu.memory[MEMORY_BASE + y * GRID_SIZE + x];
+            const brush = windows.CreateSolidBrush(types.color(byte));
+            var rect = windows.RECT{
+                .left = @intCast(x * PIXEL_SIZE),
+                .top = @intCast(y * PIXEL_SIZE),
+                .right = @intCast((x + 1) * PIXEL_SIZE),
+                .bottom = @intCast((y + 1) * PIXEL_SIZE),
+            };
+            _ = windows.FillRect(hdc, &rect, brush);
+            _ = windows.DeleteObject(brush);
+        }
+    }
+}
 
 pub fn wndProc(
     hwnd: windows.HWND,
@@ -13,15 +39,7 @@ pub fn wndProc(
         windows.WM_PAINT => {
             var ps: windows.PAINTSTRUCT = undefined;
             const hdc = windows.BeginPaint(hwnd, &ps);
-
-            const pen = windows.CreatePen(windows.PS_SOLID, 2, 0x00FF0000); // blue (BGR)
-            const old_pen = windows.SelectObject(hdc, pen);
-            const old_brush = windows.SelectObject(hdc, windows.GetStockObject(windows.HOLLOW_BRUSH));
-            _ = windows.Rectangle(hdc, 100, 80, 400, 280);
-            _ = windows.SelectObject(hdc, old_brush);
-            _ = windows.SelectObject(hdc, old_pen);
-            _ = windows.DeleteObject(pen);
-
+            renderMemory(hdc);
             _ = windows.EndPaint(hwnd, &ps);
             return 0;
         },
@@ -30,8 +48,8 @@ pub fn wndProc(
             return 0;
         },
         windows.WM_KEYDOWN, windows.WM_KEYUP => {
-            const action: []const u8 = if (msg == windows.WM_KEYDOWN) "down" else "up";
-            std.debug.print("key {s}: vk=0x{X}\n", .{ action, wparam });
+            cpu.memory[0xff] = @truncate(wparam + 0x20);
+            _ = windows.InvalidateRect(hwnd, null, 0);
             return 0;
         },
         else => return windows.DefWindowProcW(hwnd, msg, wparam, lparam),
@@ -64,8 +82,8 @@ pub fn main() !void {
         windows.WS_OVERLAPPEDWINDOW,
         windows.CW_USEDEFAULT,
         windows.CW_USEDEFAULT,
-        800,
-        600,
+        32 * PIXEL_SIZE,
+        32 * PIXEL_SIZE,
         null,
         null,
         null,

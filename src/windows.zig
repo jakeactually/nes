@@ -79,6 +79,10 @@ pub extern "gdi32" fn CreatePen(iStyle: i32, cWidth: i32, color: u32) HPEN;
 pub extern "gdi32" fn SelectObject(hdc: HDC, h: HGDIOBJ) HGDIOBJ;
 pub extern "gdi32" fn DeleteObject(ho: HGDIOBJ) i32;
 pub extern "gdi32" fn GetStockObject(i: i32) HGDIOBJ;
+pub extern "gdi32" fn CreateSolidBrush(color: u32) HBRUSH;
+
+pub extern "user32" fn FillRect(hdc: HDC, lprc: *const RECT, hbr: HBRUSH) i32;
+pub extern "user32" fn InvalidateRect(hWnd: HWND, lpRect: ?*const RECT, bErase: i32) i32;
 
 pub const RECT = extern struct {
     left: i32,
