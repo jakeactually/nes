@@ -16,12 +16,14 @@ pub const test_game_code = [_]u8{
 };
 
 fn reset(cpu: *types.CPU) void {
-    cpu.program_counter = @as(u16, cpu.memory[0xFFFC + 1]) << 8 | cpu.memory[0xFFFC];
+    cpu.program_counter = mem_read_u16(cpu, 0xFFFC);
 }
 
 fn load(cpu: *types.CPU, program: []const u8) void {
-    @memcpy(cpu.memory[0x0600 .. 0x0600 + program.len], program);
-    cpu.memory[0xFFFC + 1] = 0x06;
+    for (program, 0..) |byte, i| {
+        mem_write(cpu, 0x0000 + @as(u16, @intCast(i)), byte);
+    }
+    mem_write_u16(cpu, 0xFFFC, 0x0000);
 }
 
 pub fn load_and_reset(cpu: *types.CPU, program: []const u8) void {
@@ -51,26 +53,26 @@ fn update_zero_and_negative_flags(cpu: *types.CPU, value: u8) void {
 }
 
 fn get_operand_address(cpu: *types.CPU, mode: types.AddressingMode) u16 {
-    const current = cpu.memory[cpu.program_counter];
+    const current = mem_read(cpu, cpu.program_counter);
 
     return switch (mode) {
         .immediate => cpu.program_counter,
         .zero_page => current,
         .zero_page_x => current +% cpu.register_x,
         .zero_page_y => current +% cpu.register_y,
-        .absolute => @as(u16, cpu.memory[cpu.program_counter + 1]) << 8 | current,
+        .absolute => @as(u16, mem_read(cpu, cpu.program_counter + 1)) << 8 | current,
         .absolute_x => get_operand_address(cpu, .absolute) +% cpu.register_x,
         .absolute_y => get_operand_address(cpu, .absolute) +% cpu.register_y,
         .indirect => {
             const ptr = get_operand_address(cpu, .absolute);
-            return @as(u16, cpu.memory[ptr +% 1]) << 8 | cpu.memory[ptr];
+            return @as(u16, mem_read(cpu, ptr +% 1)) << 8 | mem_read(cpu, ptr);
         },
         .indirect_x => {
             const ptr = get_operand_address(cpu, .zero_page_x);
-            return @as(u16, cpu.memory[ptr +% 1]) << 8 | cpu.memory[ptr];
+            return @as(u16, mem_read(cpu, ptr +% 1)) << 8 | mem_read(cpu, ptr);
         },
         .indirect_y => {
-            const base = @as(u16, cpu.memory[current +% 1]) << 8 | cpu.memory[current];
+            const base = @as(u16, mem_read(cpu, current +% 1)) << 8 | mem_read(cpu, current);
             return base +% cpu.register_y;
         },
         .relative => current,
@@ -92,7 +94,7 @@ fn instruction_offset(mode: types.AddressingMode) u16 {
 
 fn branch(cpu: *types.CPU, condition: bool) void {
     if (condition) {
-        const jump: i8 = @bitCast(cpu.memory[cpu.program_counter]);
+        const jump: i8 = @bitCast(mem_read(cpu, cpu.program_counter));
         const jump_addr = cpu.program_counter +% 1 +% @as(u16, @bitCast(@as(i16, jump)));
         cpu.program_counter = jump_addr;
     } else {
@@ -102,14 +104,14 @@ fn branch(cpu: *types.CPU, condition: bool) void {
 
 fn stack_push(cpu: *types.CPU, value: u8) void {
     const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-    cpu.memory[stack_addr] = value;
+    mem_write(cpu, stack_addr, value);
     cpu.stack_pointer -%= 1;
 }
 
 fn stack_pop(cpu: *types.CPU) u8 {
     cpu.stack_pointer +%= 1;
     const stack_addr = 0x100 + @as(u16, cpu.stack_pointer);
-    return cpu.memory[stack_addr];
+    return mem_read(cpu, stack_addr);
 }
 
 fn stack_push_u16(cpu: *types.CPU, value: u16) void {
@@ -124,14 +126,14 @@ fn stack_pop_u16(cpu: *types.CPU) u16 {
 }
 
 pub fn step(cpu: *types.CPU) bool {
-    const opcode = cpu.memory[cpu.program_counter];
+    const opcode = mem_read(cpu, cpu.program_counter);
     cpu.program_counter += 1;
     const info = opcodes_info(opcode);
     const addr = get_operand_address(cpu, info.mode);
 
     switch (info.instruction) {
         .adc => {
-            const data = cpu.memory[addr];
+            const data = mem_read(cpu, addr);
             const sum = @as(u16, cpu.accumulator) + data + @intFromBool(cpu.status.carry);
             const result: u8 = @truncate(sum);
             cpu.status.carry = sum > 0xff;
@@ -140,14 +142,21 @@ pub fn step(cpu: *types.CPU) bool {
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .and_ => {
-            cpu.accumulator &= cpu.memory[addr];
+            cpu.accumulator &= mem_read(cpu, addr);
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .asl => {
-            const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
-            cpu.status.carry = target.* >> 7 == 1;
-            target.* <<= 1;
-            update_zero_and_negative_flags(cpu, target.*);
+            if (info.mode == .accumulator) {
+                cpu.status.carry = cpu.accumulator >> 7 == 1;
+                cpu.accumulator <<= 1;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            } else {
+                var value = mem_read(cpu, addr);
+                cpu.status.carry = value >> 7 == 1;
+                value <<= 1;
+                mem_write(cpu, addr, value);
+                update_zero_and_negative_flags(cpu, value);
+            }
         },
         .bcc => {
             branch(cpu, !cpu.status.carry);
@@ -159,7 +168,7 @@ pub fn step(cpu: *types.CPU) bool {
             branch(cpu, cpu.status.zero);
         },
         .bit => {
-            const value = cpu.memory[addr];
+            const value = mem_read(cpu, addr);
             cpu.status.zero = cpu.accumulator & value == 0;
             cpu.status.overflow = value >> 6 & 1 == 1;
             cpu.status.negative = value >> 7 == 1;
@@ -195,23 +204,25 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.status.overflow = false;
         },
         .cmp => {
-            const value = cpu.memory[addr];
+            const value = mem_read(cpu, addr);
             cpu.status.carry = cpu.accumulator <= value;
             update_zero_and_negative_flags(cpu, cpu.accumulator -% value);
         },
         .cpx => {
-            const value = cpu.memory[addr];
+            const value = mem_read(cpu, addr);
             cpu.status.carry = cpu.register_x <= value;
             update_zero_and_negative_flags(cpu, cpu.register_x -% value);
         },
         .cpy => {
-            const value = cpu.memory[addr];
+            const value = mem_read(cpu, addr);
             cpu.status.carry = cpu.register_y <= value;
             update_zero_and_negative_flags(cpu, cpu.register_y -% value);
         },
         .dec => {
-            cpu.memory[addr] -%= 1;
-            update_zero_and_negative_flags(cpu, cpu.memory[addr]);
+            var value = mem_read(cpu, addr);
+            value -%= 1;
+            mem_write(cpu, addr, value);
+            update_zero_and_negative_flags(cpu, value);
         },
         .dex => {
             cpu.register_x -%= 1;
@@ -222,12 +233,14 @@ pub fn step(cpu: *types.CPU) bool {
             update_zero_and_negative_flags(cpu, cpu.register_y);
         },
         .eor => {
-            cpu.accumulator ^= cpu.memory[addr];
+            cpu.accumulator ^= mem_read(cpu, addr);
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .inc => {
-            cpu.memory[addr] +%= 1;
-            update_zero_and_negative_flags(cpu, cpu.memory[addr]);
+            var value = mem_read(cpu, addr);
+            value +%= 1;
+            mem_write(cpu, addr, value);
+            update_zero_and_negative_flags(cpu, value);
         },
         .inx => {
             cpu.register_x +%= 1;
@@ -247,28 +260,35 @@ pub fn step(cpu: *types.CPU) bool {
             return true;
         },
         .lda => {
-            cpu.accumulator = cpu.memory[addr];
+            cpu.accumulator = mem_read(cpu, addr);
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .ldx => {
-            cpu.register_x = cpu.memory[addr];
+            cpu.register_x = mem_read(cpu, addr);
             update_zero_and_negative_flags(cpu, cpu.register_x);
         },
         .ldy => {
-            cpu.register_y = cpu.memory[addr];
+            cpu.register_y = mem_read(cpu, addr);
             update_zero_and_negative_flags(cpu, cpu.register_y);
         },
         .lsr => {
-            const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
-            cpu.status.carry = target.* & 1 == 1;
-            target.* >>= 1;
-            update_zero_and_negative_flags(cpu, target.*);
+            if (info.mode == .accumulator) {
+                cpu.status.carry = cpu.accumulator & 1 == 1;
+                cpu.accumulator >>= 1;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            } else {
+                var value = mem_read(cpu, addr);
+                cpu.status.carry = value & 1 == 1;
+                value >>= 1;
+                mem_write(cpu, addr, value);
+                update_zero_and_negative_flags(cpu, value);
+            }
         },
         .nop => {
             // Do nothing
         },
         .ora => {
-            cpu.accumulator |= cpu.memory[addr];
+            cpu.accumulator |= mem_read(cpu, addr);
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
         .pha => {
@@ -290,18 +310,34 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.status.ignored = true;
         },
         .rol => {
-            const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
-            const next_carry = target.* >> 7 == 1;
-            target.* = target.* << 1 | @intFromBool(cpu.status.carry);
-            cpu.status.carry = next_carry;
-            update_zero_and_negative_flags(cpu, target.*);
+            if (info.mode == .accumulator) {
+                const next_carry = cpu.accumulator >> 7 == 1;
+                cpu.accumulator = cpu.accumulator << 1 | @intFromBool(cpu.status.carry);
+                cpu.status.carry = next_carry;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            } else {
+                var value = mem_read(cpu, addr);
+                const next_carry = value >> 7 == 1;
+                value = value << 1 | @intFromBool(cpu.status.carry);
+                cpu.status.carry = next_carry;
+                mem_write(cpu, addr, value);
+                update_zero_and_negative_flags(cpu, value);
+            }
         },
         .ror => {
-            const target = if (info.mode == .accumulator) &cpu.accumulator else &cpu.memory[addr];
-            const next_carry = target.* & 1 == 1;
-            target.* = target.* >> 1 | @as(u8, if (cpu.status.carry) 0x80 else 0);
-            cpu.status.carry = next_carry;
-            update_zero_and_negative_flags(cpu, target.*);
+            if (info.mode == .accumulator) {
+                const next_carry = cpu.accumulator & 1 == 1;
+                cpu.accumulator = cpu.accumulator >> 1 | @as(u8, if (cpu.status.carry) 0x80 else 0);
+                cpu.status.carry = next_carry;
+                update_zero_and_negative_flags(cpu, cpu.accumulator);
+            } else {
+                var value = mem_read(cpu, addr);
+                const next_carry = value & 1 == 1;
+                value = value >> 1 | @as(u8, if (cpu.status.carry) 0x80 else 0);
+                cpu.status.carry = next_carry;
+                mem_write(cpu, addr, value);
+                update_zero_and_negative_flags(cpu, value);
+            }
         },
         .rti => {
             cpu.status = types.byte_to_status(stack_pop(cpu));
@@ -313,7 +349,7 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.program_counter = stack_pop_u16(cpu) + 1;
         },
         .sbc => {
-            const complement: i8 = @bitCast(cpu.memory[addr]);
+            const complement: i8 = @bitCast(mem_read(cpu, addr));
             const data: u8 = @bitCast(-%complement -% 1);
 
             const sum = @as(u16, cpu.accumulator) + data + @intFromBool(cpu.status.carry);
@@ -333,13 +369,13 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.status.interrupt = true;
         },
         .sta => {
-            cpu.memory[addr] = cpu.accumulator;
+            mem_write(cpu, addr, cpu.accumulator);
         },
         .stx => {
-            cpu.memory[addr] = cpu.register_x;
+            mem_write(cpu, addr, cpu.register_x);
         },
         .sty => {
-            cpu.memory[addr] = cpu.register_y;
+            mem_write(cpu, addr, cpu.register_y);
         },
         .tax => {
             cpu.register_x = cpu.accumulator;

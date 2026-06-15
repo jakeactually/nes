@@ -1,11 +1,13 @@
 const std = @import("std");
 const interpret = @import("cpu.zig").interpret;
+const mem_read = @import("cpu.zig").mem_read;
+const mem_write = @import("cpu.zig").mem_write;
 const CPU = @import("types.zig").CPU;
 
 test "test_load_and_reset" {
     var cpu = CPU{};
     interpret(&cpu, &[_]u8{0x00});
-    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 1);
+    try std.testing.expectEqual(cpu.program_counter, 0x0000 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD);
 }
 
@@ -51,7 +53,7 @@ test "test_inx_overflow" {
 
 test "test_lda_from_memory" {
     var cpu = CPU{};
-    cpu.memory[0x10] = 0x55;
+    mem_write(&cpu, 0x10, 0x55);
     interpret(&cpu, &[_]u8{ 0xa5, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 0x55);
 }
@@ -60,7 +62,7 @@ test "test_sta_zero_page" {
     var cpu = CPU{};
     cpu.accumulator = 0x02;
     interpret(&cpu, &[_]u8{ 0x85, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0x02);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0x02);
 }
 
 test "test_sta_zero_page_x" {
@@ -68,7 +70,7 @@ test "test_sta_zero_page_x" {
     cpu.accumulator = 0x02;
     cpu.register_x = 0x04;
     interpret(&cpu, &[_]u8{ 0x95, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x14], 0x02);
+    try std.testing.expectEqual(mem_read(&cpu, 0x14), 0x02);
 }
 
 test "test_adc_immediate" {
@@ -115,9 +117,9 @@ test "test_asl_accumulator" {
 
 test "test_asl_zero_page" {
     var cpu = CPU{};
-    cpu.memory[0x10] = 0b0111_1111;
+    mem_write(&cpu, 0x10, 0b0111_1111);
     interpret(&cpu, &[_]u8{ 0x06, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0b1111_1110);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0b1111_1110);
     try std.testing.expect(!cpu.status.carry);
 }
 
@@ -125,34 +127,34 @@ test "test_bcc" {
     var cpu = CPU{};
     cpu.status.carry = false;
     interpret(&cpu, &[_]u8{ 0x90, 10 });
-    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0000 + 10 + 3);
 }
 
 test "test_bcc_negative" {
     var cpu = CPU{};
     cpu.status.carry = false;
     interpret(&cpu, &[_]u8{ 0x90, @bitCast(@as(i8, -10)) });
-    try std.testing.expectEqual(cpu.program_counter, 0x0600 - 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0xFFFF - 10 + 4);
 }
 
 test "test_bcs" {
     var cpu = CPU{};
     cpu.status.carry = true;
     interpret(&cpu, &[_]u8{ 0xB0, 10 });
-    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0000 + 10 + 3);
 }
 
 test "test_beq" {
     var cpu = CPU{};
     cpu.status.zero = true;
     interpret(&cpu, &[_]u8{ 0xF0, 10 });
-    try std.testing.expectEqual(cpu.program_counter, 0x0600 + 10 + 3);
+    try std.testing.expectEqual(cpu.program_counter, 0x0000 + 10 + 3);
 }
 
 test "test_bit_zero_page" {
     var cpu = CPU{};
     cpu.accumulator = 0b0000_1000;
-    cpu.memory[0x10] = 0b1000_0110;
+    mem_write(&cpu, 0x10, 0b1000_0110);
     interpret(&cpu, &[_]u8{ 0x24, 0x10, 0x00 });
     try std.testing.expect(cpu.status.zero);
     try std.testing.expect(!cpu.status.overflow);
@@ -162,7 +164,7 @@ test "test_bit_zero_page" {
 test "test_bit_absolute" {
     var cpu = CPU{};
     cpu.accumulator = 0b0000_1000;
-    cpu.memory[0x2110] = 0b1000_0110;
+    mem_write(&cpu, 0x2110, 0b1000_0110);
     interpret(&cpu, &[_]u8{ 0x2C, 0x10, 0x21, 0x00 });
     try std.testing.expect(cpu.status.zero);
     try std.testing.expect(!cpu.status.overflow);
@@ -199,9 +201,9 @@ test "test_cmp_equal" {
 test "test_lda_indirect_x" {
     var cpu = CPU{};
     cpu.register_x = 1;
-    cpu.memory[0x11] = 0x55;
-    cpu.memory[0x12] = 0x44;
-    cpu.memory[0x4455] = 123;
+    mem_write(&cpu, 0x11, 0x55);
+    mem_write(&cpu, 0x12, 0x44);
+    mem_write(&cpu, 0x4455, 123);
     interpret(&cpu, &[_]u8{ 0xA1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
 }
@@ -209,18 +211,18 @@ test "test_lda_indirect_x" {
 test "test_lda_indirect_y" {
     var cpu = CPU{};
     cpu.register_y = 1;
-    cpu.memory[0x10] = 0x55;
-    cpu.memory[0x11] = 0x44;
-    cpu.memory[0x4456] = 123;
+    mem_write(&cpu, 0x10, 0x55);
+    mem_write(&cpu, 0x11, 0x44);
+    mem_write(&cpu, 0x4456, 123);
     interpret(&cpu, &[_]u8{ 0xB1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
 }
 
 test "test_dec" {
     var cpu = CPU{};
-    cpu.memory[0x10] = 0x55;
+    mem_write(&cpu, 0x10, 0x55);
     interpret(&cpu, &[_]u8{ 0xC6, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0x54);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0x54);
 }
 
 test "test_eor_immediate" {
@@ -232,9 +234,9 @@ test "test_eor_immediate" {
 
 test "test_inc" {
     var cpu = CPU{};
-    cpu.memory[0x10] = 0x55;
+    mem_write(&cpu, 0x10, 0x55);
     interpret(&cpu, &[_]u8{ 0xE6, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0x56);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0x56);
 }
 
 test "test_jmp" {
@@ -245,8 +247,8 @@ test "test_jmp" {
 
 test "test_jmp_indirect" {
     var cpu = CPU{};
-    cpu.memory[0x1234] = 0x56;
-    cpu.memory[0x1235] = 0x78;
+    mem_write(&cpu, 0x1234, 0x56);
+    mem_write(&cpu, 0x1235, 0x78);
     interpret(&cpu, &[_]u8{ 0x6C, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x7856 + 1);
 }
@@ -256,8 +258,8 @@ test "test_jsr" {
     interpret(&cpu, &[_]u8{ 0x20, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD - 2);
-    try std.testing.expectEqual(cpu.memory[0x100 + 0xFD], 0x06);
-    try std.testing.expectEqual(cpu.memory[0x100 + 0xFD - 1], 0x02);
+    try std.testing.expectEqual(mem_read(&cpu, 0x100 + 0xFD), 0x06);
+    try std.testing.expectEqual(mem_read(&cpu, 0x100 + 0xFD - 1), 0x02);
 }
 
 test "test_lsr_accumulator" {
@@ -271,9 +273,9 @@ test "test_lsr_accumulator" {
 
 test "test_lsr_zero_page" {
     var cpu = CPU{};
-    cpu.memory[0x10] = 1;
+    mem_write(&cpu, 0x10, 1);
     interpret(&cpu, &[_]u8{ 0x46, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0);
     try std.testing.expect(cpu.status.carry);
     try std.testing.expect(cpu.status.zero);
 }
@@ -282,7 +284,7 @@ test "test_pha" {
     var cpu = CPU{};
     cpu.accumulator = 123;
     interpret(&cpu, &[_]u8{ 0x48, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x100 + @as(u16, cpu.stack_pointer) + 1], 123);
+    try std.testing.expectEqual(mem_read(&cpu, 0x100 + @as(u16, cpu.stack_pointer) + 1), 123);
 }
 
 test "test_php" {
@@ -291,14 +293,14 @@ test "test_php" {
     cpu.status.overflow = true;
     cpu.status.zero = true;
     interpret(&cpu, &[_]u8{ 0x08, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x100 + @as(u16, cpu.stack_pointer) + 1], 0b1100_0010 | 0b0011_0000);
+    try std.testing.expectEqual(mem_read(&cpu, 0x100 + @as(u16, cpu.stack_pointer) + 1), 0b1100_0010 | 0b0011_0000);
     try std.testing.expect(!cpu.status.break_);
     try std.testing.expect(!cpu.status.ignored);
 }
 
 test "test_pla" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFE] = 123;
+    mem_write(&cpu, 0x100 + 0xFE, 123);
     interpret(&cpu, &[_]u8{ 0x68, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 1);
@@ -306,7 +308,7 @@ test "test_pla" {
 
 test "test_plp" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFE] = 0b1100_0010;
+    mem_write(&cpu, 0x100 + 0xFE, 0b1100_0010);
     interpret(&cpu, &[_]u8{ 0x28, 0x00 });
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
@@ -335,9 +337,9 @@ test "test_ror_accumulator" {
 
 test "test_rti" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFE] = 0b1100_0010;
-    cpu.memory[0x100 + 0xFF] = 0x12;
-    cpu.memory[0x100 + 0] = 0x34;
+    mem_write(&cpu, 0x100 + 0xFE, 0b1100_0010);
+    mem_write(&cpu, 0x100 + 0xFF, 0x12);
+    mem_write(&cpu, 0x100 + 0, 0x34);
     interpret(&cpu, &[_]u8{ 0x40, 0x00 });
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
@@ -349,8 +351,8 @@ test "test_rti" {
 
 test "test_rts" {
     var cpu = CPU{};
-    cpu.memory[0x100 + 0xFE] = 0x12;
-    cpu.memory[0x100 + 0xFF] = 0x34;
+    mem_write(&cpu, 0x100 + 0xFE, 0x12);
+    mem_write(&cpu, 0x100 + 0xFF, 0x34);
     interpret(&cpu, &[_]u8{ 0x60, 0x00 });
     try std.testing.expectEqual(cpu.program_counter, 0x3412 + 2);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 2);
@@ -369,12 +371,12 @@ test "test_stx_zero_page" {
     var cpu = CPU{};
     cpu.register_x = 0x02;
     interpret(&cpu, &[_]u8{ 0x86, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0x02);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0x02);
 }
 
 test "test_sty_zero_page" {
     var cpu = CPU{};
     cpu.register_y = 0x02;
     interpret(&cpu, &[_]u8{ 0x84, 0x10, 0x00 });
-    try std.testing.expectEqual(cpu.memory[0x10], 0x02);
+    try std.testing.expectEqual(mem_read(&cpu, 0x10), 0x02);
 }

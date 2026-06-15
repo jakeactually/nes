@@ -12,7 +12,8 @@ pub fn mem_read(bus: *const Bus, addr: u16) u8 {
         return bus.cpu_vram[mirror_down_addr];
     } else if (addr >= PPU_REGISTERS and addr <= PPU_REGISTERS_MIRRORS_END) {
         // const _mirror_down_addr = addr & 0b00100000_00000111;
-        @compileError("PPU is not supported yet");
+        std.debug.print("PPU is not supported yet\n", .{});
+        unreachable;
     } else {
         std.debug.print("Ignoring mem access at {}\n", .{addr});
         return 0;
@@ -25,7 +26,8 @@ pub fn mem_write(bus: *Bus, addr: u16, data: u8) void {
         bus.cpu_vram[mirror_down_addr] = data;
     } else if (addr >= PPU_REGISTERS and addr <= PPU_REGISTERS_MIRRORS_END) {
         // const _mirror_down_addr = addr & 0b00100000_00000111;
-        @compileError("PPU is not supported yet");
+        std.debug.print("PPU is not supported yet\n", .{});
+        unreachable;
     } else {
         std.debug.print("Ignoring mem write-access at {}\n", .{addr});
     }
