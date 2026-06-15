@@ -1,6 +1,7 @@
 const std = @import("std");
 const interpret = @import("cpu.zig").interpret;
 const mem_read = @import("cpu.zig").mem_read;
+const mem_read_u16 = @import("cpu.zig").mem_read_u16;
 const mem_write = @import("cpu.zig").mem_write;
 const mem_write_u16 = @import("cpu.zig").mem_write_u16;
 const CPU = @import("types.zig").CPU;
@@ -165,8 +166,8 @@ test "test_bit_zero_page" {
 test "test_bit_absolute" {
     var cpu = CPU{};
     cpu.accumulator = 0b0000_1000;
-    mem_write(&cpu, 0x2110, 0b1000_0110);
-    interpret(&cpu, &[_]u8{ 0x2C, 0x10, 0x21, 0x00 });
+    mem_write(&cpu, 0x0245, 0b1000_0110);
+    interpret(&cpu, &[_]u8{ 0x2C, 0x45, 0x02, 0x00 });
     try std.testing.expect(cpu.status.zero);
     try std.testing.expect(!cpu.status.overflow);
     try std.testing.expect(cpu.status.negative);
@@ -202,8 +203,8 @@ test "test_cmp_equal" {
 test "test_lda_indirect_x" {
     var cpu = CPU{};
     cpu.register_x = 1;
-    mem_write_u16(&cpu, 0x11, 0x4455);
-    mem_write(&cpu, 0x4455, 123);
+    mem_write_u16(&cpu, 0x11, 0x0100);
+    mem_write(&cpu, 0x0100, 123);
     interpret(&cpu, &[_]u8{ 0xA1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
 }
@@ -211,8 +212,8 @@ test "test_lda_indirect_x" {
 test "test_lda_indirect_y" {
     var cpu = CPU{};
     cpu.register_y = 1;
-    mem_write_u16(&cpu, 0x10, 0x4455);
-    mem_write(&cpu, 0x4456, 123);
+    mem_write_u16(&cpu, 0x10, 0x0100);
+    mem_write(&cpu, 0x0101, 123);
     interpret(&cpu, &[_]u8{ 0xB1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
 }
@@ -256,8 +257,7 @@ test "test_jsr" {
     interpret(&cpu, &[_]u8{ 0x20, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x1234 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD - 2);
-    try std.testing.expectEqual(mem_read(&cpu, 0x100 + 0xFD), 0x06);
-    try std.testing.expectEqual(mem_read(&cpu, 0x100 + 0xFD - 1), 0x02);
+    try std.testing.expectEqual(mem_read_u16(&cpu, 0x100 + 0xFC), 0x02);
 }
 
 test "test_lsr_accumulator" {
@@ -335,22 +335,23 @@ test "test_ror_accumulator" {
 
 test "test_rti" {
     var cpu = CPU{};
-    mem_write_u16(&cpu, 0x100 + 0xFE, 0x12C2);
-    mem_write(&cpu, 0x100 + 0, 0x34);
+    mem_write(&cpu, 0x100 + 0xFE, 0b1100_0010);
+    mem_write(&cpu, 0x100 + 0xFF, 0x34);
+    mem_write(&cpu, 0x100 + 0, 0x02);
     interpret(&cpu, &[_]u8{ 0x40, 0x00 });
     try std.testing.expect(cpu.status.negative);
     try std.testing.expect(cpu.status.overflow);
     try std.testing.expect(cpu.status.zero);
     try std.testing.expect(cpu.status.ignored);
-    try std.testing.expectEqual(cpu.program_counter, 0x3412 + 1);
+    try std.testing.expectEqual(cpu.program_counter, 0x0234 + 1);
     try std.testing.expectEqual(cpu.stack_pointer, 0);
 }
 
 test "test_rts" {
     var cpu = CPU{};
-    mem_write_u16(&cpu, 0x100 + 0xFE, 0x3412);
+    mem_write_u16(&cpu, 0x100 + 0xFE, 0x0200);
     interpret(&cpu, &[_]u8{ 0x60, 0x00 });
-    try std.testing.expectEqual(cpu.program_counter, 0x3412 + 2);
+    try std.testing.expectEqual(cpu.program_counter, 0x0200 + 2);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 2);
 }
 
