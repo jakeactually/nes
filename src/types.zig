@@ -1,11 +1,16 @@
 pub const CPU = struct {
     memory: [0xFFFF]u8 = @splat(0),
+    bus: Bus = Bus{},
     program_counter: u16 = 0,
     stack_pointer: u8 = 0xFD,
     accumulator: u8 = 0,
     register_x: u8 = 0,
     register_y: u8 = 0,
     status: ProcessorStatus = ProcessorStatus{},
+};
+
+pub const Bus = struct {
+    cpu_vram: [2048]u8 = @splat(0),
 };
 
 pub const ProcessorStatus = struct {
