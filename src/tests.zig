@@ -2,6 +2,7 @@ const std = @import("std");
 const interpret = @import("cpu.zig").interpret;
 const mem_read = @import("cpu.zig").mem_read;
 const mem_write = @import("cpu.zig").mem_write;
+const mem_write_u16 = @import("cpu.zig").mem_write_u16;
 const CPU = @import("types.zig").CPU;
 
 test "test_load_and_reset" {
@@ -201,8 +202,7 @@ test "test_cmp_equal" {
 test "test_lda_indirect_x" {
     var cpu = CPU{};
     cpu.register_x = 1;
-    mem_write(&cpu, 0x11, 0x55);
-    mem_write(&cpu, 0x12, 0x44);
+    mem_write_u16(&cpu, 0x11, 0x4455);
     mem_write(&cpu, 0x4455, 123);
     interpret(&cpu, &[_]u8{ 0xA1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
@@ -211,8 +211,7 @@ test "test_lda_indirect_x" {
 test "test_lda_indirect_y" {
     var cpu = CPU{};
     cpu.register_y = 1;
-    mem_write(&cpu, 0x10, 0x55);
-    mem_write(&cpu, 0x11, 0x44);
+    mem_write_u16(&cpu, 0x10, 0x4455);
     mem_write(&cpu, 0x4456, 123);
     interpret(&cpu, &[_]u8{ 0xB1, 0x10, 0x00 });
     try std.testing.expectEqual(cpu.accumulator, 123);
@@ -247,8 +246,7 @@ test "test_jmp" {
 
 test "test_jmp_indirect" {
     var cpu = CPU{};
-    mem_write(&cpu, 0x1234, 0x56);
-    mem_write(&cpu, 0x1235, 0x78);
+    mem_write_u16(&cpu, 0x1234, 0x7856);
     interpret(&cpu, &[_]u8{ 0x6C, 0x34, 0x12 });
     try std.testing.expectEqual(cpu.program_counter, 0x7856 + 1);
 }
@@ -337,8 +335,7 @@ test "test_ror_accumulator" {
 
 test "test_rti" {
     var cpu = CPU{};
-    mem_write(&cpu, 0x100 + 0xFE, 0b1100_0010);
-    mem_write(&cpu, 0x100 + 0xFF, 0x12);
+    mem_write_u16(&cpu, 0x100 + 0xFE, 0x12C2);
     mem_write(&cpu, 0x100 + 0, 0x34);
     interpret(&cpu, &[_]u8{ 0x40, 0x00 });
     try std.testing.expect(cpu.status.negative);
@@ -351,8 +348,7 @@ test "test_rti" {
 
 test "test_rts" {
     var cpu = CPU{};
-    mem_write(&cpu, 0x100 + 0xFE, 0x12);
-    mem_write(&cpu, 0x100 + 0xFF, 0x34);
+    mem_write_u16(&cpu, 0x100 + 0xFE, 0x3412);
     interpret(&cpu, &[_]u8{ 0x60, 0x00 });
     try std.testing.expectEqual(cpu.program_counter, 0x3412 + 2);
     try std.testing.expectEqual(cpu.stack_pointer, 0xFD + 2);
