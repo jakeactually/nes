@@ -1,15 +1,38 @@
 pub const CPU = struct {
     bus: Bus = Bus{},
-    program_counter: u16 = 0,
+    program_counter: u16 = 0x8000,
     stack_pointer: u8 = 0xFD,
     accumulator: u8 = 0,
     register_x: u8 = 0,
     register_y: u8 = 0,
-    status: ProcessorStatus = ProcessorStatus{},
+    status: ProcessorStatus = ProcessorStatus{
+        .negative = false,
+        .overflow = false,
+        .ignored = true,
+        .break_ = false,
+        .decimal = false,
+        .interrupt = true,
+        .zero = false,
+        .carry = false,
+    },
 };
 
 pub const Bus = struct {
     cpu_vram: [2048]u8 = @splat(0),
+    rom: Rom = Rom{},
+};
+
+pub const Mirroring = enum {
+    vertical,
+    horizontal,
+    four_screen,
+};
+
+pub const Rom = struct {
+    prg_rom: [0x7FFF]u8 = @splat(0),
+    chr_rom: []u8 = &.{},
+    mapper: u8 = 0,
+    screen_mirroring: Mirroring = .vertical,
 };
 
 pub const ProcessorStatus = struct {

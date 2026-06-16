@@ -1,3 +1,4 @@
+const std = @import("std");
 const types = @import("types.zig");
 const opcodes_info = @import("opcodes.zig").opcode_info;
 const bus = @import("bus.zig");
@@ -16,19 +17,25 @@ pub const test_game_code = [_]u8{
 };
 
 fn reset(cpu: *types.CPU) void {
+    cpu.accumulator = 0;
+    cpu.register_x = 0;
+    cpu.register_y = 0;
+    cpu.stack_pointer = 0xFD;
+    cpu.status = types.ProcessorStatus{
+        .negative = false,
+        .overflow = false,
+        .ignored = true,
+        .break_ = false,
+        .decimal = false,
+        .interrupt = true,
+        .zero = false,
+        .carry = false,
+    };
     cpu.program_counter = mem_read_u16(cpu, 0xFFFC);
 }
 
 fn load(cpu: *types.CPU, program: []const u8) void {
-    for (program, 0..) |byte, i| {
-        mem_write(cpu, 0x0000 + @as(u16, @intCast(i)), byte);
-    }
-    mem_write_u16(cpu, 0xFFFC, 0x0000);
-}
-
-pub fn load_and_reset(cpu: *types.CPU, program: []const u8) void {
-    load(cpu, program);
-    reset(cpu);
+    @memcpy(cpu.bus.rom.prg_rom[0..program.len], program);
 }
 
 pub fn mem_read(cpu: *const types.CPU, addr: u16) u8 {
@@ -407,6 +414,6 @@ pub fn step(cpu: *types.CPU) bool {
 }
 
 pub fn interpret(cpu: *types.CPU, program: []const u8) void {
-    load_and_reset(cpu, program);
+    load(cpu, program);
     while (step(cpu)) {}
 }
