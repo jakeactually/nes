@@ -16,7 +16,7 @@ pub const test_game_code = [_]u8{
     0x00, 0x06,
 };
 
-fn reset(cpu: *types.CPU) void {
+pub fn reset(cpu: *types.CPU) void {
     cpu.accumulator = 0;
     cpu.register_x = 0;
     cpu.register_y = 0;

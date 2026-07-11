@@ -1,6 +1,7 @@
 const std = @import("std");
 const types = @import("types.zig");
 const cpu_mod = @import("cpu.zig");
+const rom_mod = @import("rom.zig");
 const windows = @import("windows.zig");
 
 const PIXEL_SIZE = 10;
@@ -13,12 +14,22 @@ const GRID_SIZE: usize = 32;
 var cpu = types.CPU{};
 var prng = std.Random.DefaultPrng.init(0x1234_5678_9ABC_DEF0);
 
+fn readFile(path: []const u8, io: std.Io, allocator: std.mem.Allocator) ![]u8 {
+    const file = try std.Io.Dir.cwd().openFile(io, path, .{});
+    defer file.close(io);
+    const len = try file.length(io);
+    const data = try allocator.alloc(u8, @intCast(len));
+    errdefer allocator.free(data);
+    _ = try file.readPositionalAll(io, data, 0);
+    return data;
+}
+
 fn renderMemory(hdc: windows.HDC) void {
     var y: usize = 0;
     while (y < GRID_SIZE) : (y += 1) {
         var x: usize = 0;
         while (x < GRID_SIZE) : (x += 1) {
-            const byte = cpu.memory[MEMORY_BASE + y * GRID_SIZE + x];
+            const byte = cpu_mod.mem_read(&cpu, @intCast(MEMORY_BASE + y * GRID_SIZE + x));
             const brush = windows.CreateSolidBrush(types.color(byte));
             var rect = windows.RECT{
                 .left = @intCast(x * PIXEL_SIZE),
@@ -57,15 +68,21 @@ pub fn wndProc(
             return 0;
         },
         windows.WM_KEYDOWN => {
-            cpu.memory[0xff] = @truncate(wparam + 0x20);
+            cpu_mod.mem_write(&cpu, 0xff, @truncate(wparam + 0x20));
             return 0;
         },
         else => return windows.DefWindowProcW(hwnd, msg, wparam, lparam),
     }
 }
 
-pub fn main() !void {
-    cpu_mod.load_and_reset(&cpu, &cpu_mod.game_code);
+pub fn main(init: std.process.Init) !void {
+    const allocator = init.gpa;
+    const io = init.io;
+    const file_data = try readFile("snake.nes", io, allocator);
+    const rom = try rom_mod.parse_rom(file_data);
+    cpu.bus = types.Bus{ .rom = rom };
+    defer allocator.free(file_data);
+    cpu_mod.reset(&cpu);
 
     const class_name = std.unicode.utf8ToUtf16LeStringLiteral("MyWindowClass");
     const title = std.unicode.utf8ToUtf16LeStringLiteral("Hello from Zig");
@@ -107,7 +124,7 @@ pub fn main() !void {
     var msg: windows.MSG = undefined;
 
     while (true) {
-        cpu.memory[0xfe] = prng.random().int(u8);
+        cpu_mod.mem_write(&cpu, 0xfe, prng.random().int(u8));
 
         for (0..60) |_| {
             _ = cpu_mod.step(&cpu);
