@@ -19,7 +19,7 @@ pub fn parse_rom(raw: []const u8) !types.Rom {
     const ines_ver = (raw[7] >> 2) & 0b11;
     if (ines_ver != 0) return ParseError.unsupported_format;
 
-    const four_screen = (raw[6] & 0b100) != 0;
+    const four_screen = (raw[6] & 0b1000) != 0;
     const vertical_mirroring = (raw[6] & 0b1) != 0;
     const screen_mirroring = if (four_screen)
         types.Mirroring.four_screen
