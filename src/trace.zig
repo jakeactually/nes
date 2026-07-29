@@ -120,7 +120,7 @@ pub fn trace(allocator: std.mem.Allocator, cpu: *const types.CPU) ![]u8 {
     var hex_len: usize = 1;
 
     const mem_addr, const stored_value = switch (ops.mode) {
-        .immediate, .implied, .accumulator => .{ @as(u16, 0), @as(u8, 0) },
+        .immediate, .implied, .accumulator, .relative, .indirect => .{ @as(u16, 0), @as(u8, 0) },
         else => addr_blk: {
             const addr = getAbsoluteAddress(cpu, ops.mode, begin + 1);
             break :addr_blk .{ addr, cpu_mod.mem_read(cpu, addr) };
