@@ -177,7 +177,7 @@ test "test_cmp" {
     var cpu = CPU{};
     cpu.accumulator = 15;
     interpret(&cpu, &[_]u8{ 0xC9, 14, 0x00 });
-    try std.testing.expect(!cpu.status.carry);
+    try std.testing.expect(cpu.status.carry);
     try std.testing.expect(!cpu.status.zero);
     try std.testing.expect(!cpu.status.negative);
 }
@@ -186,7 +186,7 @@ test "test_cmp_less" {
     var cpu = CPU{};
     cpu.accumulator = 14;
     interpret(&cpu, &[_]u8{ 0xC9, 15, 0x00 });
-    try std.testing.expect(cpu.status.carry);
+    try std.testing.expect(!cpu.status.carry);
     try std.testing.expect(!cpu.status.zero);
     try std.testing.expect(cpu.status.negative);
 }

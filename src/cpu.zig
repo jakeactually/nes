@@ -212,17 +212,17 @@ pub fn step(cpu: *types.CPU) bool {
         },
         .cmp => {
             const value = mem_read(cpu, addr);
-            cpu.status.carry = cpu.accumulator <= value;
+            cpu.status.carry = value <= cpu.accumulator;
             update_zero_and_negative_flags(cpu, cpu.accumulator -% value);
         },
         .cpx => {
             const value = mem_read(cpu, addr);
-            cpu.status.carry = cpu.register_x <= value;
+            cpu.status.carry = value <= cpu.register_x;
             update_zero_and_negative_flags(cpu, cpu.register_x -% value);
         },
         .cpy => {
             const value = mem_read(cpu, addr);
-            cpu.status.carry = cpu.register_y <= value;
+            cpu.status.carry = value <= cpu.register_y;
             update_zero_and_negative_flags(cpu, cpu.register_y -% value);
         },
         .dec => {
