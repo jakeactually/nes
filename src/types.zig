@@ -29,7 +29,7 @@ pub const Mirroring = enum {
 };
 
 pub const Rom = struct {
-    prg_rom: [0xFFFFF]u8 = @splat(0),
+    prg_rom: [0x4000]u8 = @splat(0),
     chr_rom: []const u8 = &.{},
     mapper: u8 = 0,
     screen_mirroring: Mirroring = .vertical,
