@@ -14,8 +14,11 @@ pub fn mem_read(bus: *const Bus, addr: u16) u8 {
         // const _mirror_down_addr = addr & 0b00100000_00000111;
         std.debug.print("PPU is not supported yet\n", .{});
         unreachable;
-    } else {
+    } else if (addr >= 0x8000 and addr <= 0xFFFF) {
         return read_prg_rom(bus, addr);
+    } else {
+        std.debug.print("Ignoring mem access at {}\n", .{addr});
+        return 0;
     }
 }
 
@@ -27,9 +30,11 @@ pub fn mem_write(bus: *Bus, addr: u16, data: u8) void {
         // const _mirror_down_addr = addr & 0b00100000_00000111;
         std.debug.print("PPU is not supported yet\n", .{});
         unreachable;
-    } else {
+    } else if (addr >= 0x8000 and addr <= 0xFFFF) {
         std.debug.print("Attempt to write to Cartridge ROM space\n", .{});
         unreachable;
+    } else {
+        std.debug.print("Ignoring mem access at {}\n", .{addr});
     }
 }
 
