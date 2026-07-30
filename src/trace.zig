@@ -157,7 +157,7 @@ pub fn trace(allocator: std.mem.Allocator, cpu: *const types.CPU) ![]u8 {
                     ) catch unreachable).len,
                     .indirect_x => (std.fmt.bufPrint(
                         &tmp_buf,
-                        "(${X:0>2},X) @ {X:0>4} = {X:0>4} = {X:0>2}",
+                        "(${X:0>2},X) @ {X:0>2} = {X:0>4} = {X:0>2}",
                         .{ address, address +% cpu.register_x, mem_addr, stored_value },
                     ) catch unreachable).len,
                     .indirect_y => (std.fmt.bufPrint(

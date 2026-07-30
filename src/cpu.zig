@@ -75,8 +75,10 @@ fn get_operand_address(cpu: *types.CPU, mode: types.AddressingMode) u16 {
             return @as(u16, mem_read(cpu, ptr +% 1)) << 8 | mem_read(cpu, ptr);
         },
         .indirect_x => {
-            const ptr = get_operand_address(cpu, .zero_page_x);
-            return @as(u16, mem_read(cpu, ptr +% 1)) << 8 | mem_read(cpu, ptr);
+            const ptr = current +% cpu.register_x;
+            const lo = mem_read(cpu, ptr);
+            const hi = mem_read(cpu, ptr +% 1);
+            return @as(u16, hi) << 8 | lo;
         },
         .indirect_y => {
             const base = @as(u16, mem_read(cpu, current +% 1)) << 8 | mem_read(cpu, current);
