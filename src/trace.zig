@@ -72,6 +72,7 @@ fn mnemonic(instruction: types.Instruction) []const u8 {
 
         .dop => "*NOP",
         .lax => "*LAX",
+        .sax => "*SAX",
     };
 }
 

@@ -136,6 +136,7 @@ pub const Instruction = enum {
 
     dop,
     lax,
+    sax,
 };
 
 pub const AddressingMode = enum {

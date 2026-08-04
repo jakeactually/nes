@@ -428,6 +428,10 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.register_x = value;
             update_zero_and_negative_flags(cpu, value);
         },
+        .sax => {
+            const value = cpu.accumulator & cpu.register_x;
+            mem_write(cpu, addr, value);
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);
