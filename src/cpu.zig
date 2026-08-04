@@ -71,8 +71,17 @@ fn get_operand_address(cpu: *types.CPU, mode: types.AddressingMode) u16 {
         .absolute_x => get_operand_address(cpu, .absolute) +% cpu.register_x,
         .absolute_y => get_operand_address(cpu, .absolute) +% cpu.register_y,
         .indirect => {
-            const ptr = get_operand_address(cpu, .absolute);
-            return @as(u16, mem_read(cpu, ptr +% 1)) << 8 | mem_read(cpu, ptr);
+            const mem_address = mem_read_u16(cpu, cpu.program_counter);
+
+            const indirect_ref = if (mem_address & 0x00FF == 0x00FF) blk: {
+                const lo = mem_read(cpu, mem_address);
+                const hi = mem_read(cpu, mem_address & 0xFF00);
+                break :blk @as(u16, hi) << 8 | lo;
+            } else blk: {
+                break :blk mem_read_u16(cpu, mem_address);
+            };
+
+            return indirect_ref;
         },
         .indirect_x => {
             const ptr = current +% cpu.register_x;
