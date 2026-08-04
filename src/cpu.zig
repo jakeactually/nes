@@ -418,6 +418,10 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.accumulator = cpu.register_y;
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
+
+        .dop => {
+            // Do nothing
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);

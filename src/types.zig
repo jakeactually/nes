@@ -133,6 +133,8 @@ pub const Instruction = enum {
     txa,
     txs,
     tya,
+
+    dop,
 };
 
 pub const AddressingMode = enum {

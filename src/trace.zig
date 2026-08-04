@@ -69,6 +69,8 @@ fn mnemonic(instruction: types.Instruction) []const u8 {
         .txa => "TXA",
         .txs => "TXS",
         .tya => "TYA",
+
+        .dop => "*NOP",
     };
 }
 
