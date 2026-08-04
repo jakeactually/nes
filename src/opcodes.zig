@@ -214,6 +214,13 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xDA => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
         0xFA => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
 
+        0xA7 => types.OpcodeInfo{ .instruction = .lax, .mode = .zero_page },
+        0xB7 => types.OpcodeInfo{ .instruction = .lax, .mode = .zero_page_y },
+        0xAF => types.OpcodeInfo{ .instruction = .lax, .mode = .absolute },
+        0xBF => types.OpcodeInfo{ .instruction = .lax, .mode = .absolute_y },
+        0xA3 => types.OpcodeInfo{ .instruction = .lax, .mode = .indirect_x },
+        0xB3 => types.OpcodeInfo{ .instruction = .lax, .mode = .indirect_y },
+
         else => unreachable,
     };
 }

@@ -422,6 +422,12 @@ pub fn step(cpu: *types.CPU) bool {
         .dop => {
             // Do nothing
         },
+        .lax => {
+            const value = mem_read(cpu, addr);
+            cpu.accumulator = value;
+            cpu.register_x = value;
+            update_zero_and_negative_flags(cpu, value);
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);
