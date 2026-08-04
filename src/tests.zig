@@ -377,3 +377,9 @@ test "test_sty_zero_page" {
     interpret(&cpu, &[_]u8{ 0x84, 0x10, 0x00 });
     try std.testing.expectEqual(mem_read(&cpu, 0x10), 0x02);
 }
+
+test "test_unofficial_dop_04_decodes_as_nop" {
+    var cpu = CPU{};
+    interpret(&cpu, &[_]u8{ 0x04, 0x10, 0x00 });
+    try std.testing.expectEqual(cpu.program_counter, 0x8000 + 3);
+}

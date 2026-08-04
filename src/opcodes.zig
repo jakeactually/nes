@@ -184,6 +184,21 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x9A => types.OpcodeInfo{ .instruction = .txs, .mode = .implied },
         0x98 => types.OpcodeInfo{ .instruction = .tya, .mode = .implied },
 
+        0x04 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page },
+        0x14 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page_x },
+        0x34 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page_x },
+        0x44 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page },
+        0x54 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page_x },
+        0x64 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page },
+        0x74 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page_x },
+        0x80 => types.OpcodeInfo{ .instruction = .nop, .mode = .immediate },
+        0x82 => types.OpcodeInfo{ .instruction = .nop, .mode = .immediate },
+        0x89 => types.OpcodeInfo{ .instruction = .nop, .mode = .immediate },
+        0xC2 => types.OpcodeInfo{ .instruction = .nop, .mode = .immediate },
+        0xD4 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page_x },
+        0xE2 => types.OpcodeInfo{ .instruction = .nop, .mode = .immediate },
+        0xF4 => types.OpcodeInfo{ .instruction = .nop, .mode = .zero_page_x },
+
         else => unreachable,
     };
 }
