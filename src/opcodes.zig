@@ -184,6 +184,14 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x9A => types.OpcodeInfo{ .instruction = .txs, .mode = .implied },
         0x98 => types.OpcodeInfo{ .instruction = .tya, .mode = .implied },
 
+        0x0C => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute },
+        0x1C => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute_x },
+        0x3C => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute_x },
+        0x5C => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute_x },
+        0x7C => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute_x },
+        0xDC => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute_x },
+        0xFC => types.OpcodeInfo{ .instruction = .dop, .mode = .absolute_x },
+
         0x04 => types.OpcodeInfo{ .instruction = .dop, .mode = .zero_page },
         0x14 => types.OpcodeInfo{ .instruction = .dop, .mode = .zero_page_x },
         0x34 => types.OpcodeInfo{ .instruction = .dop, .mode = .zero_page_x },
@@ -198,6 +206,13 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0xD4 => types.OpcodeInfo{ .instruction = .dop, .mode = .zero_page_x },
         0xE2 => types.OpcodeInfo{ .instruction = .dop, .mode = .immediate },
         0xF4 => types.OpcodeInfo{ .instruction = .dop, .mode = .zero_page_x },
+
+        0x1A => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
+        0x3A => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
+        0x5A => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
+        0x7A => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
+        0xDA => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
+        0xFA => types.OpcodeInfo{ .instruction = .dop, .mode = .implied },
 
         else => unreachable,
     };
