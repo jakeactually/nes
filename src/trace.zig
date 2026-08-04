@@ -147,12 +147,12 @@ pub fn trace(allocator: std.mem.Allocator, cpu: *const types.CPU) ![]u8 {
                     .zero_page => (std.fmt.bufPrint(&tmp_buf, "${X:0>2} = {X:0>2}", .{ mem_addr, stored_value }) catch unreachable).len,
                     .zero_page_x => (std.fmt.bufPrint(
                         &tmp_buf,
-                        "${X:0>2},X @ {X:0>4} = {X:0>2}",
+                        "${X:0>2},X @ {X:0>2} = {X:0>2}",
                         .{ address, mem_addr, stored_value },
                     ) catch unreachable).len,
                     .zero_page_y => (std.fmt.bufPrint(
                         &tmp_buf,
-                        "${X:0>2},Y @ {X:0>4} = {X:0>2}",
+                        "${X:0>2},Y @ {X:0>2} = {X:0>2}",
                         .{ address, mem_addr, stored_value },
                     ) catch unreachable).len,
                     .indirect_x => (std.fmt.bufPrint(
