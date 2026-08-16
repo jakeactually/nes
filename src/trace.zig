@@ -76,6 +76,13 @@ fn mnemonic(instruction: types.Instruction) []const u8 {
     };
 }
 
+fn prefix(opcode: u8) []const u8 {
+    return switch (opcode) {
+        0xEB => "*",
+        else => "",
+    };
+}
+
 fn getAbsoluteAddress(cpu: *const types.CPU, mode: types.AddressingMode, addr: u16) u16 {
     return switch (mode) {
         .zero_page => cpu_mod.mem_read(cpu, addr),
@@ -228,11 +235,18 @@ pub fn trace(allocator: std.mem.Allocator, cpu: *const types.CPU) ![]u8 {
     }
     const hex_str = hex_str_buf[0..hex_len_str];
 
+    var opcode_buf: [4]u8 = undefined;
+    const opcode_str = try std.fmt.bufPrint(
+        &opcode_buf,
+        "{s}{s}",
+        .{ prefix(code), mnemonic(ops.instruction) },
+    );
+
     var asm_buf: [128]u8 = undefined;
     const asm_str = try std.fmt.bufPrint(
         &asm_buf,
         "{X:0>4}  {s:<8} {s:>4} {s}",
-        .{ begin, hex_str, mnemonic(ops.instruction), tmp },
+        .{ begin, hex_str, opcode_str, tmp },
     );
 
     const status = types.status_to_byte(cpu.status);
