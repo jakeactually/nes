@@ -228,6 +228,14 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
 
         0xEB => types.OpcodeInfo{ .instruction = .sbc, .mode = .immediate },
 
+        0xC7 => types.OpcodeInfo{ .instruction = .dcp, .mode = .zero_page },
+        0xD7 => types.OpcodeInfo{ .instruction = .dcp, .mode = .zero_page_x },
+        0xCF => types.OpcodeInfo{ .instruction = .dcp, .mode = .absolute },
+        0xDF => types.OpcodeInfo{ .instruction = .dcp, .mode = .absolute_x },
+        0xDB => types.OpcodeInfo{ .instruction = .dcp, .mode = .absolute_y },
+        0xC3 => types.OpcodeInfo{ .instruction = .dcp, .mode = .indirect_x },
+        0xD3 => types.OpcodeInfo{ .instruction = .dcp, .mode = .indirect_y },
+
         else => unreachable,
     };
 }

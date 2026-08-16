@@ -432,6 +432,13 @@ pub fn step(cpu: *types.CPU) bool {
             const value = cpu.accumulator & cpu.register_x;
             mem_write(cpu, addr, value);
         },
+        .dcp => {
+            var value = mem_read(cpu, addr);
+            value -%= 1;
+            mem_write(cpu, addr, value);
+            cpu.status.carry = value <= cpu.accumulator;
+            update_zero_and_negative_flags(cpu, cpu.accumulator -% value);
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);
