@@ -138,6 +138,7 @@ pub const Instruction = enum {
     lax,
     sax,
     dcp,
+    isc,
 };
 
 pub const AddressingMode = enum {

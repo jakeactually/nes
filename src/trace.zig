@@ -74,6 +74,7 @@ fn mnemonic(instruction: types.Instruction) []const u8 {
         .lax => "*LAX",
         .sax => "*SAX",
         .dcp => "*DCP",
+        .isc => "*ISB",
     };
 }
 
