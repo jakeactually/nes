@@ -465,6 +465,15 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.accumulator |= value;
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
+        .rla => {
+            var value = mem_read(cpu, addr);
+            const next_carry = value >> 7 == 1;
+            value = value << 1 | @intFromBool(cpu.status.carry);
+            cpu.status.carry = next_carry;
+            mem_write(cpu, addr, value);
+            cpu.accumulator &= value;
+            update_zero_and_negative_flags(cpu, cpu.accumulator);
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);

@@ -76,6 +76,7 @@ fn mnemonic(instruction: types.Instruction) []const u8 {
         .dcp => "*DCP",
         .isc => "*ISB",
         .slo => "*SLO",
+        .rla => "*RLA",
     };
 }
 
