@@ -139,6 +139,7 @@ pub const Instruction = enum {
     sax,
     dcp,
     isc,
+    slo,
 };
 
 pub const AddressingMode = enum {
