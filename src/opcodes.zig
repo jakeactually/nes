@@ -260,6 +260,14 @@ pub fn opcode_info(opcode: u8) types.OpcodeInfo {
         0x23 => types.OpcodeInfo{ .instruction = .rla, .mode = .indirect_x },
         0x33 => types.OpcodeInfo{ .instruction = .rla, .mode = .indirect_y },
 
+        0x47 => types.OpcodeInfo{ .instruction = .sre, .mode = .zero_page },
+        0x57 => types.OpcodeInfo{ .instruction = .sre, .mode = .zero_page_x },
+        0x4F => types.OpcodeInfo{ .instruction = .sre, .mode = .absolute },
+        0x5F => types.OpcodeInfo{ .instruction = .sre, .mode = .absolute_x },
+        0x5B => types.OpcodeInfo{ .instruction = .sre, .mode = .absolute_y },
+        0x43 => types.OpcodeInfo{ .instruction = .sre, .mode = .indirect_x },
+        0x53 => types.OpcodeInfo{ .instruction = .sre, .mode = .indirect_y },
+
         else => unreachable,
     };
 }

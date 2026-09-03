@@ -474,6 +474,14 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.accumulator &= value;
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
+        .sre => {
+            var value = mem_read(cpu, addr);
+            cpu.status.carry = value & 1 == 1;
+            value >>= 1;
+            mem_write(cpu, addr, value);
+            cpu.accumulator ^= value;
+            update_zero_and_negative_flags(cpu, cpu.accumulator);
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);

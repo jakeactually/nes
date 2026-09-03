@@ -141,6 +141,7 @@ pub const Instruction = enum {
     isc,
     slo,
     rla,
+    sre,
 };
 
 pub const AddressingMode = enum {
