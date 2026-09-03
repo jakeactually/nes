@@ -482,6 +482,20 @@ pub fn step(cpu: *types.CPU) bool {
             cpu.accumulator ^= value;
             update_zero_and_negative_flags(cpu, cpu.accumulator);
         },
+        .rra => {
+            var value = mem_read(cpu, addr);
+            const next_carry = value & 1 == 1;
+            value = value >> 1 | @as(u8, if (cpu.status.carry) 0x80 else 0);
+            cpu.status.carry = next_carry;
+            mem_write(cpu, addr, value);
+
+            const sum = @as(u16, cpu.accumulator) + value + @intFromBool(cpu.status.carry);
+            const result: u8 = @truncate(sum);
+            cpu.status.carry = sum > 0xff;
+            cpu.status.overflow = (value ^ result) & (result ^ cpu.accumulator) & 0x80 != 0;
+            cpu.accumulator = result;
+            update_zero_and_negative_flags(cpu, cpu.accumulator);
+        },
     }
 
     cpu.program_counter += instruction_offset(info.mode);
